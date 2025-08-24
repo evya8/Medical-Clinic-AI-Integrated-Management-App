@@ -1,0 +1,37 @@
+# Environment variables
+.env
+.env.example
+
+# Composer dependencies
+/backend/vendor/
+
+# Logs
+*.log
+/backend/logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Upload directory
+/backend/uploads/
+
+# Cache files
+/backend/cache/
+*.cache
+
+# Temporary files
+*.tmp
+*.temp
