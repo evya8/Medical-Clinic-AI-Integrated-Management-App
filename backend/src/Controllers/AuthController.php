@@ -8,9 +8,9 @@ class AuthController extends BaseController
 {
     public function login(): void
     {
-        $this->validateRequired(['username', 'password'], $this->input);
+        $this->validateRequired(['email', 'password'], $this->input);
         
-        $username = $this->sanitizeString($this->input['username']);
+        $username = $this->sanitizeString($this->input['email']);
         $password = $this->input['password'];
 
         // Find user by username or email

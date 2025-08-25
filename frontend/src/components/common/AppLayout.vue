@@ -4,6 +4,7 @@
     <AppSidebar 
       :is-collapsed="sidebarCollapsed"
       @toggle="toggleSidebar"
+      @new-patient="handleNewPatient"
     />
     
     <!-- Main Content Area -->
@@ -62,6 +63,10 @@ const toggleSidebar = () => {
 const handleLogout = async () => {
   await authStore.logout()
   router.push('/login')
+}
+
+const handleNewPatient = () => {
+  router.push('/patients/new')
 }
 
 // Initialize sidebar state from localStorage

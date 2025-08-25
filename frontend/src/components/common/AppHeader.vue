@@ -38,7 +38,7 @@
       </div>
 
       <!-- Notifications -->
-      <div class="relative">
+      <div class="relative notifications-container">
         <button
           class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full relative"
           @click="showNotifications = !showNotifications"
@@ -135,7 +135,7 @@
               <div class="px-4 py-3">
                 <p class="text-sm">Signed in as</p>
                 <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ user?.email }}
+                  {{ props.user?.email }}
                 </p>
               </div>
               

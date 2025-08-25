@@ -144,14 +144,14 @@
               class="block text-left text-primary-600 hover:text-primary-800"
               @click="fillDemoCredentials('admin')"
             >
-              Admin: admin@clinic.com / password123
+              Admin: admin@clinic.com / admin123
             </button>
             <button
               type="button"
               class="block text-left text-primary-600 hover:text-primary-800"
               @click="fillDemoCredentials('doctor')"
             >
-              Doctor: doctor@clinic.com / password123
+              Doctor: smith@clinic.com / doctor123
             </button>
           </div>
         </div>
@@ -161,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { EyeIcon, EyeSlashIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
@@ -233,10 +233,10 @@ const handleSubmit = async () => {
 const fillDemoCredentials = (role: 'admin' | 'doctor') => {
   if (role === 'admin') {
     form.email = 'admin@clinic.com'
-    form.password = 'password123'
+    form.password = 'admin123'
   } else if (role === 'doctor') {
-    form.email = 'doctor@clinic.com'
-    form.password = 'password123'
+    form.email = 'smith@clinic.com'
+    form.password = 'doctor123'
   }
 }
 
@@ -250,23 +250,30 @@ const clearError = (field: string) => {
   }
 }
 
-// Watch form changes to clear errors
-const watchFormChanges = () => {
-  const originalEmail = form.email
-  const originalPassword = form.password
-  
-  // This is a simple way to watch for changes in Vue 3
-  setInterval(() => {
-    if (form.email !== originalEmail && errors.value.email) {
-      clearError('email')
-    }
-    if (form.password !== originalPassword && errors.value.password) {
-      clearError('password')
-    }
-  }, 100)
-}
+// Watch form changes to clear errors (proper Vue way)
+watch(() => form.email, () => {
+  if (errors.value.email) {
+    clearError('email')
+  }
+})
 
-watchFormChanges()
+watch(() => form.password, () => {
+  if (errors.value.password) {
+    clearError('password')
+  }
+})
+
+watch(() => generalError.value, (newError) => {
+  if (newError) {
+    // Clear general error after 5 seconds
+    setTimeout(() => {
+      // Only clear if the error hasn't changed
+      if (generalError.value === newError) {
+        generalError.value = null
+      }
+    }, 5000)
+  }
+})
 </script>
 
 <style scoped>

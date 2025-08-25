@@ -52,10 +52,11 @@ try {
     
 } catch (Exception $e) {
     http_response_code(500);
+    $debug = isset($config) && isset($config['debug']) ? $config['debug'] : false;
     echo json_encode([
         'success' => false,
         'message' => 'Internal server error',
-        'error' => $config['debug'] ? $e->getMessage() : 'Something went wrong'
+        'error' => $debug ? $e->getMessage() : 'Something went wrong'
     ]);
     exit;
 }

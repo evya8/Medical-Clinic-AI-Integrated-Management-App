@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { FunctionalComponent, SVGAttributes } from 'vue'
 import {
   UsersIcon,
   CalendarIcon,
@@ -46,6 +47,8 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
 } from '@heroicons/vue/24/outline'
+
+type IconComponent = FunctionalComponent<SVGAttributes, {}>
 
 interface Props {
   title: string

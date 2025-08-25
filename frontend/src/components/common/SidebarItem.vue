@@ -54,10 +54,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import type { FunctionalComponent, SVGAttributes } from 'vue'
+
+type IconComponent = FunctionalComponent<SVGAttributes, {}>
 
 interface Props {
   to: string
-  icon: any // Component
+  icon: IconComponent
   label: string
   collapsed?: boolean
   badge?: string | number

@@ -442,6 +442,28 @@ try {
             }
             break;
 
+        case 'debug':
+            $controller = new MedicalClinic\Controllers\DebugAppointmentController();
+            switch ($request_method) {
+                case 'GET':
+                    if ($id === 'appointment-sql') {
+                        $controller->createSimpleAppointment();
+                    } else {
+                        throw new Exception('Route not found', 404);
+                    }
+                    break;
+                case 'POST':
+                    if ($id === 'test-insert') {
+                        $controller->testInsert();
+                    } else {
+                        throw new Exception('Route not found', 404);
+                    }
+                    break;
+                default:
+                    throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         case '':
         case 'health':
             // Health check endpoint

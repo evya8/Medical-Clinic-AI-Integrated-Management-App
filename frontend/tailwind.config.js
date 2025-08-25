@@ -53,9 +53,9 @@ export default {
         16: '4rem',
       },
       borderRadius: {
-        card: '0.75rem',
-        button: '0.5rem',
-        input: '0.5rem',
+        'card': '0.75rem',
+        'button': '0.5rem',
+        'input': '0.5rem',
       },
       boxShadow: {
         card: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
