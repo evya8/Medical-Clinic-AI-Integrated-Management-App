@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isOpen"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title"
     role="dialog"
@@ -155,8 +154,7 @@ import { XMarkIcon } from '@heroicons/vue/24/outline'
 import type { Appointment } from '@/types/api.types'
 
 interface Props {
-  isOpen: boolean
-  appointment: Appointment | null
+  appointment: Appointment
 }
 
 interface Emits {
@@ -198,16 +196,14 @@ const availableTimeSlots = computed(() => {
 watch(
   () => props.appointment,
   (appointment) => {
-    if (appointment) {
-      // Reset form when appointment changes
-      form.value = {
-        date: '',
-        time: '',
-        reason: '',
-        notes: '',
-        notifyEmail: true,
-        notifySms: false
-      }
+    // Reset form when appointment changes
+    form.value = {
+      date: '',
+      time: '',
+      reason: '',
+      notes: '',
+      notifyEmail: true,
+      notifySms: false
     }
   },
   { immediate: true }
@@ -230,8 +226,6 @@ const handleClose = () => {
 }
 
 const handleSubmit = async () => {
-  if (!currentAppointment.value) return
-
   isLoading.value = true
 
   try {

@@ -258,7 +258,7 @@ const formatDate = (date: string) => {
 }
 
 const getEntryIcon = (type: string) => {
-  const iconMap = {
+  const iconMap: Record<string, any> = {
     visit: CalendarIcon,
     diagnosis: HeartIcon,
     treatment: ClipboardDocumentListIcon,
@@ -270,7 +270,7 @@ const getEntryIcon = (type: string) => {
 }
 
 const getEntryIconColor = (type: string) => {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     visit: 'text-blue-500',
     diagnosis: 'text-red-500',
     treatment: 'text-green-500',
@@ -282,7 +282,7 @@ const getEntryIconColor = (type: string) => {
 }
 
 const getEntryBorderColor = (type: string) => {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     visit: 'border-blue-500',
     diagnosis: 'border-red-500',
     treatment: 'border-green-500',

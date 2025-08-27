@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isOpen && record"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title"
     role="dialog"
@@ -251,8 +250,7 @@ import {
 import type { MedicalRecord } from '@/types/api.types'
 
 interface Props {
-  isOpen: boolean
-  record: MedicalRecord | null
+  record: MedicalRecord
 }
 
 interface Emits {
@@ -302,8 +300,6 @@ const resetForm = () => {
 }
 
 const handleSubmit = async () => {
-  if (!props.record) return
-
   isLoading.value = true
 
   try {

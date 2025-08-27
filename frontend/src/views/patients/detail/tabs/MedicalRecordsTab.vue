@@ -349,7 +349,7 @@ const formatMetadataKey = (key: string) => {
 }
 
 const getFileTypeIcon = (type: string) => {
-  const iconMap = {
+  const iconMap: Record<string, any> = {
     'lab-result': BeakerIcon,
     'imaging': CameraIcon,
     'prescription': ClipboardDocumentListIcon,
@@ -362,7 +362,7 @@ const getFileTypeIcon = (type: string) => {
 }
 
 const getFileTypeIconBackground = (type: string) => {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     'lab-result': 'bg-blue-100',
     'imaging': 'bg-purple-100',
     'prescription': 'bg-green-100',
@@ -375,7 +375,7 @@ const getFileTypeIconBackground = (type: string) => {
 }
 
 const getFileTypeIconColor = (type: string) => {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     'lab-result': 'text-blue-600',
     'imaging': 'text-purple-600',
     'prescription': 'text-green-600',
@@ -388,7 +388,7 @@ const getFileTypeIconColor = (type: string) => {
 }
 
 const getTypeClasses = (type: string) => {
-  const classMap = {
+  const classMap: Record<string, string> = {
     'lab-result': 'bg-blue-100 text-blue-800',
     'imaging': 'bg-purple-100 text-purple-800',
     'prescription': 'bg-green-100 text-green-800',
@@ -401,7 +401,7 @@ const getTypeClasses = (type: string) => {
 }
 
 const getTypeText = (type: string) => {
-  const textMap = {
+  const textMap: Record<string, string> = {
     'lab-result': 'Lab Result',
     'imaging': 'Imaging',
     'prescription': 'Prescription',

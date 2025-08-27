@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isOpen && entry"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title"
     role="dialog"
@@ -198,16 +197,16 @@
 import { ref, computed, watch } from 'vue'
 import { format } from 'date-fns'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
-import type { MedicalHistoryEntry } from '@/types/api.types'
+import type { Patient, MedicalHistoryEntry } from '@/types/api.types'
 
 interface Props {
-  isOpen: boolean
-  entry: MedicalHistoryEntry | null
+  patient: Patient
+  entry: MedicalHistoryEntry
 }
 
 interface Emits {
   (e: 'close'): void
-  (e: 'entry-updated', entry: MedicalHistoryEntry): void
+  (e: 'updated', entry: MedicalHistoryEntry): void
 }
 
 const props = defineProps<Props>()
@@ -238,20 +237,18 @@ const maxDate = computed(() => {
 watch(
   () => props.entry,
   (entry) => {
-    if (entry) {
-      form.value = {
-        type: entry.type,
-        date: entry.date,
-        title: entry.title,
-        description: entry.description || '',
-        diagnosis: entry.diagnosis || '',
-        treatment: entry.treatment || '',
-        medications: entry.medications?.join('\n') || '',
-        doctor: entry.doctor || '',
-        status: entry.status || 'active',
-        requiresFollowUp: !!entry.followUpDate,
-        followUpDate: entry.followUpDate || ''
-      }
+    form.value = {
+      type: entry.type,
+      date: entry.date,
+      title: entry.title,
+      description: entry.description || '',
+      diagnosis: entry.diagnosis || '',
+      treatment: entry.treatment || '',
+      medications: entry.medications?.join('\n') || '',
+      doctor: entry.doctor || '',
+      status: entry.status || 'active',
+      requiresFollowUp: !!entry.followUpDate,
+      followUpDate: entry.followUpDate || ''
     }
   },
   { immediate: true }
@@ -265,8 +262,6 @@ const handleClose = () => {
 }
 
 const handleSubmit = async () => {
-  if (!props.entry) return
-
   isLoading.value = true
 
   try {
@@ -293,7 +288,7 @@ const handleSubmit = async () => {
       updatedAt: new Date().toISOString()
     }
 
-    emit('entry-updated', updatedEntry)
+    emit('updated', updatedEntry)
     emit('close')
   } catch (error) {
     console.error('Failed to update medical history entry:', error)

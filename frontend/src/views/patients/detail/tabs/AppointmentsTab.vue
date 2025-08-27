@@ -231,7 +231,7 @@ const CalendarPlusIcon = PlusIcon
 
 import AppointmentDetailModal from '@/components/appointments/AppointmentDetailModal.vue'
 import RescheduleAppointmentModal from '@/components/appointments/RescheduleAppointmentModal.vue'
-import type { Patient, Appointment } from '@/types/api.types'
+import type { Patient, Appointment, AppointmentStatus } from '@/types/api.types'
 
 interface Props {
   patient: Patient
@@ -347,7 +347,7 @@ const formatDate = (date: string) => {
 }
 
 const getAppointmentIcon = (status: string) => {
-  const iconMap = {
+  const iconMap: Record<string, any> = {
     scheduled: CalendarIcon,
     confirmed: CalendarIcon,
     completed: CheckCircleIcon,
@@ -358,7 +358,7 @@ const getAppointmentIcon = (status: string) => {
 }
 
 const getAppointmentIconColor = (status: string) => {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     scheduled: 'text-blue-500',
     confirmed: 'text-green-500',
     completed: 'text-green-600',
@@ -369,7 +369,7 @@ const getAppointmentIconColor = (status: string) => {
 }
 
 const getAppointmentBorderColor = (status: string) => {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     scheduled: 'border-blue-500',
     confirmed: 'border-green-500',
     completed: 'border-green-600',
@@ -380,7 +380,7 @@ const getAppointmentBorderColor = (status: string) => {
 }
 
 const getStatusClasses = (status: string) => {
-  const classMap = {
+  const classMap: Record<string, string> = {
     scheduled: 'bg-blue-100 text-blue-800',
     confirmed: 'bg-green-100 text-green-800',
     completed: 'bg-green-100 text-green-800',
@@ -391,7 +391,7 @@ const getStatusClasses = (status: string) => {
 }
 
 const getStatusText = (status: string) => {
-  const textMap = {
+  const textMap: Record<string, string> = {
     scheduled: 'Scheduled',
     confirmed: 'Confirmed',
     completed: 'Completed',
@@ -423,8 +423,10 @@ const rescheduleAppointment = (appointment: Appointment) => {
 const cancelAppointment = async (appointment: Appointment) => {
   if (confirm('Are you sure you want to cancel this appointment?')) {
     // In a real app, this would call an API
-    const updatedAppointments = props.appointments.map(app =>
-      app.id === appointment.id ? { ...app, status: 'cancelled' } : app
+    const updatedAppointments: Appointment[] = props.appointments.map(app =>
+      app.id === appointment.id 
+        ? { ...app, status: 'cancelled' as AppointmentStatus } 
+        : app
     )
     emit('update', updatedAppointments)
   }

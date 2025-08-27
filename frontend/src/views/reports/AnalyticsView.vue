@@ -558,7 +558,7 @@ const generateCSV = (data: any) => {
   ])
   
   return [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .map(row => row.map((cell: string | number) => `"${cell}"`).join(','))
     .join('\n')
 }
 
@@ -568,11 +568,11 @@ const generateProceduresCSV = () => {
     proc.code,
     proc.name,
     proc.count,
-    `$${proc.revenue}`
+    `${proc.revenue}`
   ])
   
   return [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .map(row => row.map((cell: string | number) => `"${cell}"`).join(','))
     .join('\n')
 }
 
@@ -585,7 +585,7 @@ const generateDemographicsCSV = () => {
   ])
   
   return [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .map(row => row.map((cell: string | number) => `"${cell}"`).join(','))
     .join('\n')
 }
 

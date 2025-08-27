@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isOpen && record"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title"
     role="dialog"
@@ -153,8 +152,7 @@ import {
 import type { MedicalRecord } from '@/types/api.types'
 
 interface Props {
-  isOpen: boolean
-  record: MedicalRecord | null
+  record: MedicalRecord
 }
 
 interface Emits {
@@ -169,8 +167,6 @@ const imageLoadError = ref(false)
 
 // Computed
 const recordTypeLabel = computed(() => {
-  if (!props.record) return ''
-  
   const typeLabels = {
     'lab-result': 'Lab Result',
     'imaging': 'Imaging',
@@ -185,11 +181,10 @@ const recordTypeLabel = computed(() => {
 })
 
 const isPDF = computed(() => {
-  return props.record?.filename.toLowerCase().includes('.pdf')
+  return props.record.filename.toLowerCase().includes('.pdf')
 })
 
 const isImage = computed(() => {
-  if (!props.record) return false
   const filename = props.record.filename.toLowerCase()
   return filename.includes('.jpg') || filename.includes('.jpeg') || filename.includes('.png') || filename.includes('.gif')
 })
@@ -217,11 +212,9 @@ const formatDate = (dateString: string): string => {
 }
 
 const downloadRecord = () => {
-  if (props.record?.url) {
-    const link = document.createElement('a')
-    link.href = props.record.url
-    link.download = props.record.filename
-    link.click()
-  }
+  const link = document.createElement('a')
+  link.href = props.record.url
+  link.download = props.record.filename
+  link.click()
 }
 </script>

@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isOpen"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title"
     role="dialog"
@@ -144,15 +143,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { XMarkIcon, DocumentIcon } from '@heroicons/vue/24/outline'
+import type { Patient, MedicalRecord } from '@/types/api.types'
 
 interface Props {
-  isOpen: boolean
-  patientId: number
+  patient: Patient
 }
 
 interface Emits {
   (e: 'close'): void
-  (e: 'uploaded'): void
+  (e: 'uploaded', record: MedicalRecord): void
 }
 
 const props = defineProps<Props>()
@@ -206,10 +205,31 @@ const handleSubmit = async () => {
     // Mock API call - replace with actual upload
     await new Promise(resolve => setTimeout(resolve, 2000))
 
-    console.log('Uploading file:', selectedFile.value.name, 'for patient:', props.patientId)
-    console.log('Form data:', form.value)
+    // Parse tags into array
+    const tagsArray = form.value.tags
+      ? form.value.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+      : []
 
-    emit('uploaded')
+    const uploadedRecord: MedicalRecord = {
+      id: Date.now(),
+      patientId: props.patient.id,
+      filename: selectedFile.value.name,
+      type: form.value.type as any,
+      description: form.value.description || undefined,
+      url: URL.createObjectURL(selectedFile.value), // Mock URL
+      size: selectedFile.value.size,
+      uploadedBy: 'Current User', // Would come from auth context
+      tags: tagsArray.length > 0 ? tagsArray : undefined,
+      metadata: {
+        originalName: selectedFile.value.name,
+        mimeType: selectedFile.value.type,
+        uploadDate: new Date().toISOString()
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    emit('uploaded', uploadedRecord)
     handleClose()
   } catch (error) {
     console.error('Upload failed:', error)

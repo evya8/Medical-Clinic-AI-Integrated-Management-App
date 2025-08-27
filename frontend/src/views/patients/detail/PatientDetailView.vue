@@ -149,27 +149,22 @@
             <div class="tab-content p-6">
               <!-- Basic Information Tab -->
               <div v-show="activeTab === 'basic'" class="tab-panel">
-                <BasicInformationTab :patient="patient" @update="handlePatientUpdate" />
+                <BasicInformationTab v-if="patient" :patient="patient" @update="handlePatientUpdate" @edit="openEditModal" />
               </div>
 
               <!-- Medical History Tab -->
               <div v-show="activeTab === 'medical'" class="tab-panel">
-                <MedicalHistoryTab :patient="patient" :medical-history="medicalHistory" />
+                <MedicalHistoryTab v-if="patient" :patient="patient" :medical-history="medicalHistory" />
               </div>
 
               <!-- Appointments Tab -->
               <div v-show="activeTab === 'appointments'" class="tab-panel">
-                <AppointmentsTab :patient="patient" :appointments="appointments" @schedule="scheduleAppointment" />
+                <AppointmentsTab v-if="patient" :patient="patient" :appointments="appointments" @schedule="scheduleAppointment" />
               </div>
 
               <!-- Medical Records Tab -->
               <div v-show="activeTab === 'records'" class="tab-panel">
-                <MedicalRecordsTab :patient="patient" :records="medicalRecords" />
-              </div>
-
-              <!-- Billing Tab -->
-              <div v-show="activeTab === 'billing'" class="tab-panel">
-                <BillingTab :patient="patient" :billing-history="billingHistory" />
+                <MedicalRecordsTab v-if="patient" :patient="patient" :records="medicalRecords" />
               </div>
             </div>
           </div>
@@ -179,7 +174,7 @@
 
     <!-- Edit Patient Modal -->
     <PatientEditModal
-      v-if="showEditModal"
+      v-if="showEditModal && patient"
       :patient="patient"
       @close="closeEditModal"
       @update="handlePatientUpdate"
@@ -187,7 +182,7 @@
 
     <!-- Schedule Appointment Modal -->
     <ScheduleAppointmentModal
-      v-if="showScheduleModal"
+      v-if="showScheduleModal && patient"
       :patient="patient"
       @close="closeScheduleModal"
       @scheduled="handleAppointmentScheduled"
@@ -218,7 +213,6 @@ import BasicInformationTab from './tabs/BasicInformationTab.vue'
 import MedicalHistoryTab from './tabs/MedicalHistoryTab.vue'
 import AppointmentsTab from './tabs/AppointmentsTab.vue'
 import MedicalRecordsTab from './tabs/MedicalRecordsTab.vue'
-import BillingTab from './tabs/BillingTab.vue'
 import PatientEditModal from '@/components/patients/modals/PatientEditModal.vue'
 import ScheduleAppointmentModal from '@/components/appointments/ScheduleAppointmentModal.vue'
 
@@ -245,13 +239,20 @@ const medicalRecords = ref<MedicalRecord[]>([])
 const medicalAlerts = ref<MedicalAlert[]>([])
 
 // Tab configuration
-const tabs = [
+interface TabItem {
+  id: string
+  name: string
+  icon: any
+  badge?: number | null
+}
+
+const tabs = ref<TabItem[]>([
   { id: 'basic', name: 'Basic Info', icon: UserIcon, badge: null },
   { id: 'medical', name: 'Medical History', icon: HeartIcon, badge: null },
   { id: 'appointments', name: 'Appointments', icon: CalendarIcon, badge: null },
   { id: 'records', name: 'Medical Records', icon: ClipboardDocumentListIcon, badge: null },
   { id: 'billing', name: 'Billing', icon: CreditCardIcon, badge: null },
-]
+])
 
 // Computed
 const patientId = computed(() => parseInt(route.params.id as string))
@@ -348,7 +349,7 @@ const loadAppointments = async () => {
     if (response.success && response.data) {
       appointments.value = response.data
       // Update tab badge
-      const appointmentTab = tabs.find(tab => tab.id === 'appointments')
+      const appointmentTab = tabs.value.find(tab => tab.id === 'appointments')
       if (appointmentTab) {
         appointmentTab.badge = appointments.value.length
       }
@@ -378,21 +379,25 @@ const loadMedicalAlerts = async () => {
   }
 }
 
-const getAlertClasses = (priority: string) => {
+const getAlertClasses = (priority: number) => {
   const baseClasses = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium'
-  switch (priority) {
-    case 'high':
-      return `${baseClasses} bg-red-100 text-red-800`
-    case 'medium':
-      return `${baseClasses} bg-yellow-100 text-yellow-800`
-    case 'low':
-      return `${baseClasses} bg-blue-100 text-blue-800`
-    default:
-      return `${baseClasses} bg-gray-100 text-gray-800`
+  // Priority is 1-5 scale: 1-2=low, 3=medium, 4-5=high
+  if (priority >= 4) {
+    return `${baseClasses} bg-red-100 text-red-800`
+  } else if (priority === 3) {
+    return `${baseClasses} bg-yellow-100 text-yellow-800`
+  } else if (priority >= 1) {
+    return `${baseClasses} bg-blue-100 text-blue-800`
+  } else {
+    return `${baseClasses} bg-gray-100 text-gray-800`
   }
 }
 
 const openEditModal = () => {
+  if (!patient.value) {
+    console.error('Cannot open edit modal: patient data not loaded')
+    return
+  }
   showEditModal.value = true
 }
 
@@ -405,6 +410,10 @@ const closeEditModal = () => {
 }
 
 const scheduleAppointment = () => {
+  if (!patient.value) {
+    console.error('Cannot schedule appointment: patient data not loaded')
+    return
+  }
   showScheduleModal.value = true
 }
 

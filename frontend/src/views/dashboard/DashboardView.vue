@@ -184,7 +184,7 @@ import QuickActionButton from '@/components/dashboard/QuickActionButton.vue'
 import ActivityItem from '@/components/dashboard/ActivityItem.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useNotifications } from '@/stores/notifications'
-import type { Appointment, DashboardMetrics } from '@/types/api.types'
+import type { Appointment, DashboardMetrics, ActivityItemData } from '@/types/api.types'
 
 // Router and Stores
 const router = useRouter()
@@ -216,9 +216,14 @@ const todayAppointments = ref<Appointment[]>([
     id: 1,
     patientId: 1,
     doctorId: 1,
-    scheduledAt: '2024-08-24T09:00:00Z',
+    appointmentDate: '2024-08-24',
+    startTime: '09:00',
+    endTime: '09:30',
+    appointmentType: 'Annual checkup',
+    priority: 'normal',
     status: 'scheduled',
-    reason: 'Annual checkup',
+    notes: 'Annual checkup appointment',
+    followUpRequired: false,
     patient: {
       id: 1,
       firstName: 'John',
@@ -235,9 +240,14 @@ const todayAppointments = ref<Appointment[]>([
     id: 2,
     patientId: 2,
     doctorId: 1,
-    scheduledAt: '2024-08-24T10:30:00Z',
+    appointmentDate: '2024-08-24',
+    startTime: '10:30',
+    endTime: '11:00',
+    appointmentType: 'Follow-up consultation',
+    priority: 'normal',
     status: 'scheduled',
-    reason: 'Follow-up consultation',
+    notes: 'Follow-up consultation',
+    followUpRequired: false,
     patient: {
       id: 2,
       firstName: 'Jane',
@@ -252,27 +262,36 @@ const todayAppointments = ref<Appointment[]>([
   },
 ])
 
-const recentActivity = ref([
+const recentActivity = ref<ActivityItemData[]>([
   {
-    id: 1,
+    id: '1',
     type: 'appointment',
-    message: 'New appointment scheduled for John Doe',
+    title: 'New appointment scheduled',
+    description: 'Annual checkup appointment for John Doe',
     timestamp: '2024-08-24T08:30:00Z',
-    user: 'Dr. Smith',
+    user: {
+      name: 'Dr. Smith',
+    },
   },
   {
-    id: 2,
+    id: '2',
     type: 'patient',
-    message: 'Patient record updated for Jane Smith',
+    title: 'Patient record updated',
+    description: 'Updated contact information for Jane Smith',
     timestamp: '2024-08-24T08:15:00Z',
-    user: 'Nurse Johnson',
+    user: {
+      name: 'Nurse Johnson',
+    },
   },
   {
-    id: 3,
+    id: '3',
     type: 'system',
-    message: 'System backup completed successfully',
+    title: 'System backup completed',
+    description: 'Daily backup completed successfully',
     timestamp: '2024-08-24T07:00:00Z',
-    user: 'System',
+    user: {
+      name: 'System',
+    },
   },
 ])
 
@@ -297,8 +316,8 @@ const systemStatusText = computed(() => {
   return statusMap[metrics.value.systemStatus] || 'Unknown'
 })
 
-const systemStatusColor = computed(() => {
-  const colorMap = {
+const systemStatusColor = computed((): 'green' | 'yellow' | 'red' | 'gray' | 'blue' | 'purple' => {
+  const colorMap: Record<string, 'green' | 'yellow' | 'red' | 'gray'> = {
     healthy: 'green',
     warning: 'yellow',
     error: 'red',

@@ -136,7 +136,7 @@
             <select v-model="form.doctorId" class="medical-input">
               <option value="">Auto-assign</option>
               <option v-for="doctor in doctors" :key="doctor.id" :value="doctor.id">
-                Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.specialty }}
+                Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.specialization }}
               </option>
             </select>
           </div>

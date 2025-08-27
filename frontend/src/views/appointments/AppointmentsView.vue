@@ -177,6 +177,7 @@
 
     <AppointmentEditModal
       v-if="showEditModal && selectedAppointment"
+      :is-open="showEditModal"
       :appointment="selectedAppointment"
       @close="showEditModal = false"
       @updated="handleAppointmentUpdated"
@@ -223,7 +224,7 @@ const appointments = ref<Appointment[]>([])
 const doctors = ref<Doctor[]>([])
 const isLoading = ref(true)
 const currentView = ref<'calendar' | 'list'>('calendar')
-const selectedDate = ref<string | null>(null)
+const selectedDate = ref<string | undefined>(undefined)
 const selectedAppointment = ref<Appointment | null>(null)
 
 // Filters
@@ -424,28 +425,31 @@ const generateMockDoctors = (): Doctor[] => {
   return [
     {
       id: 1,
+      userId: 101,
       firstName: 'Sarah',
       lastName: 'Smith',
       email: 'dr.smith@clinic.com',
-      specialty: 'Family Medicine',
+      specialization: 'Family Medicine',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     {
       id: 2,
+      userId: 102,
       firstName: 'Michael',
       lastName: 'Johnson',
       email: 'dr.johnson@clinic.com',
-      specialty: 'Cardiology',
+      specialization: 'Cardiology',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     {
       id: 3,
+      userId: 103,
       firstName: 'Emily',
       lastName: 'Williams',
       email: 'dr.williams@clinic.com',
-      specialty: 'Pediatrics',
+      specialization: 'Pediatrics',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }

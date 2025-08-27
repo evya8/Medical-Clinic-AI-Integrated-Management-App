@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="isOpen"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title"
     role="dialog"
@@ -198,16 +197,15 @@
 import { ref, computed } from 'vue'
 import { format } from 'date-fns'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
-import type { MedicalHistoryEntry } from '@/types/api.types'
+import type { Patient, MedicalHistoryEntry } from '@/types/api.types'
 
 interface Props {
-  isOpen: boolean
-  patientId: number
+  patient: Patient
 }
 
 interface Emits {
   (e: 'close'): void
-  (e: 'entry-added', entry: MedicalHistoryEntry): void
+  (e: 'added', entry: MedicalHistoryEntry): void
 }
 
 const props = defineProps<Props>()
@@ -255,7 +253,7 @@ const handleSubmit = async () => {
 
     const entry: MedicalHistoryEntry = {
       id: Date.now(),
-      patientId: props.patientId,
+      patientId: props.patient.id,
       date: form.value.date,
       type: form.value.type as any,
       title: form.value.title,
@@ -271,7 +269,7 @@ const handleSubmit = async () => {
       updatedAt: new Date().toISOString()
     }
 
-    emit('entry-added', entry)
+    emit('added', entry)
     emit('close')
   } catch (error) {
     console.error('Failed to add medical history entry:', error)
