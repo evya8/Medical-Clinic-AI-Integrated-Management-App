@@ -1,5 +1,5 @@
 import { api, API_ENDPOINTS, handleApiError } from './api'
-import type { User, LoginCredentials, LoginResponse, APIResponse } from '@/types/api.types'
+import type { User, LoginCredentials, LoginResponse } from '@/types/api.types'
 
 export class AuthService {
   // Login user

@@ -186,7 +186,7 @@ http://localhost:5173
 ### 6. **Login with Demo Credentials**
 ```
 Email: admin@clinic.com
-Password: password123
+Password: admin123
 ```
 
 ---

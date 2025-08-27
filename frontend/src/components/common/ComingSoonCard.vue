@@ -57,7 +57,7 @@ interface Props {
 defineProps<Props>()
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .ai-icon-container {
   animation: pulse-glow 3s ease-in-out infinite;
 }

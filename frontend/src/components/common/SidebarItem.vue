@@ -107,7 +107,7 @@ const badgeClasses = computed(() => {
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .sidebar-item {
   @apply relative;
 }

@@ -10,8 +10,11 @@
     <!-- Activity Content -->
     <div class="flex-1 min-w-0">
       <div class="text-sm text-gray-900">
-        <span>{{ activity.message }}</span>
-        <span class="font-medium text-gray-700 ml-1">{{ activity.user }}</span>
+        <span>{{ activity.title }}</span>
+        <span v-if="activity.user" class="font-medium text-gray-700 ml-1">{{ activity.user.name }}</span>
+      </div>
+      <div v-if="activity.description" class="text-xs text-gray-600 mt-0.5">
+        {{ activity.description }}
       </div>
       <div class="text-xs text-gray-500 mt-1">
         {{ relativeTime }}
@@ -33,30 +36,21 @@ import {
   UserIcon,
   CogIcon,
   ClipboardDocumentListIcon,
-  HeartIcon,
   BellIcon,
 } from '@heroicons/vue/24/outline'
-
-interface ActivityItem {
-  id: number
-  type: 'appointment' | 'patient' | 'system' | 'medical' | 'alert'
-  message: string
-  timestamp: string
-  user: string
-}
+import type { ActivityItemData } from '@/types/api.types'
 
 interface Props {
-  activity: ActivityItem
+  activity: ActivityItemData
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 // Icon mapping based on activity type
 const iconMap = {
   appointment: CalendarIcon,
   patient: UserIcon,
   system: CogIcon,
-  medical: HeartIcon,
   alert: BellIcon,
 }
 
@@ -70,7 +64,6 @@ const iconBackgroundClass = computed(() => {
     appointment: 'bg-blue-100',
     patient: 'bg-green-100',
     system: 'bg-gray-100',
-    medical: 'bg-red-100',
     alert: 'bg-yellow-100',
   }
   return colorMap[props.activity.type] || 'bg-gray-100'
@@ -81,7 +74,6 @@ const iconColorClass = computed(() => {
     appointment: 'text-blue-600',
     patient: 'text-green-600',
     system: 'text-gray-600',
-    medical: 'text-red-600',
     alert: 'text-yellow-600',
   }
   return colorMap[props.activity.type] || 'text-gray-600'
@@ -106,7 +98,7 @@ const formattedTime = computed(() => {
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .activity-item {
   @apply transition-colors duration-200;
 }

@@ -6,11 +6,11 @@
       </h3>
     </div>
     <div class="space-y-1">
-      <slot />
+      <slot></slot>
     </div>
   </div>
   <div v-else class="space-y-1">
-    <slot />
+    <slot></slot>
   </div>
 </template>
 
@@ -23,7 +23,7 @@ interface Props {
 defineProps<Props>()
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .sidebar-section {
   @apply mb-6;
 }

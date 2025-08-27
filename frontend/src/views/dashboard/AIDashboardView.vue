@@ -13,107 +13,346 @@
               AI-powered insights and clinical decision support
             </p>
           </div>
+          
+          <div class="flex items-center space-x-4">
+            <!-- Refresh Button -->
+            <button
+              @click="refreshDashboard"
+              :disabled="isLoading"
+              class="medical-button-secondary"
+            >
+              <ArrowPathIcon class="w-4 h-4 mr-2" :class="{ 'animate-spin': isLoading }" />
+              {{ isLoading ? 'Updating...' : 'Refresh' }}
+            </button>
+            
+            <!-- AI Model Status -->
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span class="text-sm text-gray-600">AI Models Online</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Coming Soon Card -->
-      <div class="medical-card p-12 text-center">
-        <div class="ai-icon-container w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CpuChipIcon class="w-10 h-10 text-purple-600" />
-        </div>
-        
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">
-          AI-Powered Clinical Intelligence
-        </h3>
-        <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
-          The AI Dashboard will provide intelligent insights, predictive analytics, and clinical decision support. 
-          This feature will be available in Phase 3 of the development roadmap.
-        </p>
-        
-        <!-- AI Features Preview -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-          <div class="ai-feature-card p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg border border-purple-100">
-            <HeartIcon class="w-10 h-10 text-red-500 mx-auto mb-4" />
-            <h4 class="font-semibold text-gray-900 mb-2">AI Triage</h4>
-            <p class="text-sm text-gray-600">
-              Intelligent patient prioritization based on symptoms and risk factors
-            </p>
-            <div class="mt-3">
-              <span class="ai-indicator text-xs">Coming in Phase 3</span>
+      <!-- AI Status Cards -->
+      <div class="ai-status-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="medical-card p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-purple-700 font-medium mb-1">AI Triage</p>
+              <p class="text-2xl font-bold text-purple-900">{{ aiMetrics.triageProcessed }}</p>
+              <p class="text-xs text-purple-600 mt-2">Patients processed today</p>
             </div>
-          </div>
-          
-          <div class="ai-feature-card p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
-            <DocumentTextIcon class="w-10 h-10 text-blue-500 mx-auto mb-4" />
-            <h4 class="font-semibold text-gray-900 mb-2">Smart Summaries</h4>
-            <p class="text-sm text-gray-600">
-              Automated generation of clinical notes and appointment summaries
-            </p>
-            <div class="mt-3">
-              <span class="ai-indicator text-xs">Coming in Phase 3</span>
-            </div>
-          </div>
-          
-          <div class="ai-feature-card p-6 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg border border-yellow-100">
-            <ExclamationTriangleIcon class="w-10 h-10 text-yellow-500 mx-auto mb-4" />
-            <h4 class="font-semibold text-gray-900 mb-2">Clinical Alerts</h4>
-            <p class="text-sm text-gray-600">
-              Proactive alerts for drug interactions, allergies, and health risks
-            </p>
-            <div class="mt-3">
-              <span class="ai-indicator text-xs">Coming in Phase 3</span>
-            </div>
-          </div>
-          
-          <div class="ai-feature-card p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-100">
-            <ChartBarIcon class="w-10 h-10 text-green-500 mx-auto mb-4" />
-            <h4 class="font-semibold text-gray-900 mb-2">Predictive Analytics</h4>
-            <p class="text-sm text-gray-600">
-              Forecast patient outcomes and optimize clinic operations
-            </p>
-            <div class="mt-3">
-              <span class="ai-indicator text-xs">Coming in Phase 3</span>
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <HeartIcon class="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
 
-        <!-- AI Capabilities List -->
-        <div class="mt-12 bg-gray-50 rounded-lg p-8">
-          <h4 class="text-lg font-semibold text-gray-900 mb-6">Planned AI Capabilities</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span class="text-sm text-gray-700">Intelligent patient triage and risk assessment</span>
+        <div class="medical-card p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-blue-700 font-medium mb-1">AI Summaries</p>
+              <p class="text-2xl font-bold text-blue-900">{{ aiMetrics.summariesGenerated }}</p>
+              <p class="text-xs text-blue-600 mt-2">Generated today</p>
             </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span class="text-sm text-gray-700">Automated clinical documentation</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span class="text-sm text-gray-700">Drug interaction and allergy alerts</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span class="text-sm text-gray-700">Appointment optimization recommendations</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span class="text-sm text-gray-700">Clinical decision support systems</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span class="text-sm text-gray-700">Population health analytics</span>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <DocumentTextIcon class="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </div>
 
-        <!-- Back to Dashboard -->
-        <div class="mt-8">
-          <RouterLink to="/dashboard" class="medical-button-secondary">
-            <ArrowLeftIcon class="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </RouterLink>
+        <div class="medical-card p-6 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-yellow-700 font-medium mb-1">Active Alerts</p>
+              <p class="text-2xl font-bold text-yellow-900">{{ aiMetrics.activeAlerts }}</p>
+              <p class="text-xs text-yellow-600 mt-2">Require attention</p>
+            </div>
+            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <ExclamationTriangleIcon class="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div class="medical-card p-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-green-700 font-medium mb-1">AI Accuracy</p>
+              <p class="text-2xl font-bold text-green-900">{{ aiMetrics.accuracy }}%</p>
+              <p class="text-xs text-green-600 mt-2">Overall performance</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <ChartBarIcon class="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main AI Dashboard Grid -->
+      <div class="ai-dashboard-grid grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Daily Briefing + Priority Tasks -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- Daily AI Briefing -->
+          <div class="medical-card">
+            <div class="card-header flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">Daily AI Briefing</h3>
+              <div class="flex items-center space-x-2">
+                <CpuChipIcon class="w-4 h-4 text-purple-600" />
+                <span class="text-xs text-gray-500">Generated by AI</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div v-if="isLoadingBriefing" class="space-y-3">
+                <div class="skeleton h-4 rounded w-full"></div>
+                <div class="skeleton h-4 rounded w-3/4"></div>
+                <div class="skeleton h-4 rounded w-5/6"></div>
+              </div>
+              <div v-else class="ai-briefing-content">
+                <div class="mb-6">
+                  <div class="flex items-center mb-3">
+                    <CalendarIcon class="w-5 h-5 text-blue-600 mr-2" />
+                    <h4 class="font-semibold text-gray-900">Today's Overview</h4>
+                  </div>
+                  <p class="text-gray-700 text-sm leading-relaxed">
+                    {{ dailyBriefing.overview }}
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="briefing-section">
+                    <h5 class="font-medium text-gray-900 mb-2 flex items-center">
+                      <TrendingUpIcon class="w-4 h-4 text-green-600 mr-2" />
+                      Key Insights
+                    </h5>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                      <li v-for="insight in dailyBriefing.insights" :key="insight" class="flex items-start">
+                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        {{ insight }}
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="briefing-section">
+                    <h5 class="font-medium text-gray-900 mb-2 flex items-center">
+                      <LightBulbIcon class="w-4 h-4 text-yellow-600 mr-2" />
+                      Recommendations
+                    </h5>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                      <li v-for="recommendation in dailyBriefing.recommendations" :key="recommendation" class="flex items-start">
+                        <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        {{ recommendation }}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Priority Tasks -->
+          <div class="medical-card">
+            <div class="card-header flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">Priority Tasks</h3>
+              <span class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">AI Generated</span>
+            </div>
+            <div class="p-6">
+              <div v-if="isLoadingTasks" class="space-y-4">
+                <div v-for="n in 4" :key="n" class="skeleton h-16 rounded"></div>
+              </div>
+              <div v-else class="space-y-4">
+                <div
+                  v-for="task in priorityTasks"
+                  :key="task.id"
+                  class="priority-task-item p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center mb-2">
+                        <component 
+                          :is="getTaskIcon(task.category)"
+                          :class="['w-4 h-4 mr-2', getTaskIconColor(task.priority)]"
+                        />
+                        <h4 class="font-medium text-gray-900">{{ task.title }}</h4>
+                        <span 
+                          :class="[
+                            'ml-2 px-2 py-0.5 text-xs font-medium rounded-full',
+                            getPriorityClass(task.priority)
+                          ]"
+                        >
+                          {{ task.priority }}
+                        </span>
+                      </div>
+                      <p class="text-sm text-gray-600 mb-2">{{ task.description }}</p>
+                      <div class="flex items-center text-xs text-gray-500">
+                        <ClockIcon class="w-3 h-3 mr-1" />
+                        <span>{{ task.estimatedTime }} • Due {{ formatDate(task.dueDate) }}</span>
+                      </div>
+                    </div>
+                    <button
+                      @click="markTaskComplete(task.id)"
+                      class="ml-4 text-green-600 hover:text-green-700"
+                    >
+                      <CheckCircleIcon class="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: AI Alerts + Quick Analytics -->
+        <div class="space-y-8">
+          <!-- AI Alerts Panel -->
+          <div class="medical-card">
+            <div class="card-header flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">AI Alerts</h3>
+              <RouterLink 
+                to="/ai-features/alerts" 
+                class="text-sm text-blue-600 hover:text-blue-800"
+              >
+                View All →
+              </RouterLink>
+            </div>
+            <div class="p-6">
+              <div v-if="isLoadingAlerts" class="space-y-3">
+                <div v-for="n in 3" :key="n" class="skeleton h-12 rounded"></div>
+              </div>
+              <div v-else-if="recentAlerts.length === 0" class="text-center py-8">
+                <CheckCircleIcon class="mx-auto h-12 w-12 text-green-400 mb-4" />
+                <h4 class="text-lg font-medium text-gray-900 mb-2">All Clear!</h4>
+                <p class="text-gray-500">No active alerts at this time.</p>
+              </div>
+              <div v-else class="space-y-4">
+                <div
+                  v-for="alert in recentAlerts.slice(0, 5)"
+                  :key="alert.id"
+                  class="alert-item p-3 rounded-lg border"
+                  :class="getAlertClass(alert.severity)"
+                >
+                  <div class="flex items-start space-x-3">
+                    <component 
+                      :is="getAlertIcon(alert.type)"
+                      :class="['w-4 h-4 mt-0.5 flex-shrink-0', getAlertIconColor(alert.severity)]"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900">{{ alert.title }}</p>
+                      <p class="text-xs text-gray-600 mt-1">{{ alert.message }}</p>
+                      <p class="text-xs text-gray-500 mt-2">{{ formatTime(alert.createdAt) }}</p>
+                    </div>
+                    <button
+                      @click="acknowledgeAlert(alert.id)"
+                      class="text-gray-400 hover:text-gray-600"
+                    >
+                      <XMarkIcon class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick AI Analytics -->
+          <div class="medical-card">
+            <div class="card-header p-6 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">AI Performance</h3>
+            </div>
+            <div class="p-6">
+              <div class="space-y-6">
+                <!-- AI Model Usage -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">Model Usage Today</span>
+                    <span class="text-sm text-gray-500">{{ aiAnalytics.totalRequests }} requests</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      class="bg-purple-600 h-2 rounded-full transition-all duration-500"
+                      :style="{ width: aiAnalytics.usagePercentage + '%' }"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Response Times -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">Avg Response Time</span>
+                    <span class="text-sm text-gray-500">{{ aiAnalytics.avgResponseTime }}ms</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      class="bg-green-600 h-2 rounded-full transition-all duration-500"
+                      :style="{ width: Math.min(100, (2000 - aiAnalytics.avgResponseTime) / 20) + '%' }"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Accuracy Score -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">Accuracy Score</span>
+                    <span class="text-sm text-gray-500">{{ aiAnalytics.accuracyScore }}%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      class="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                      :style="{ width: aiAnalytics.accuracyScore + '%' }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Quick Actions -->
+          <div class="medical-card">
+            <div class="card-header p-6 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+            </div>
+            <div class="p-6">
+              <div class="space-y-3">
+                <RouterLink 
+                  to="/ai-features/triage"
+                  class="quick-action-link"
+                >
+                  <HeartIcon class="w-5 h-5 text-red-600" />
+                  <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-gray-900">AI Triage</p>
+                    <p class="text-xs text-gray-500">Analyze patient urgency</p>
+                  </div>
+                  <ChevronRightIcon class="w-4 h-4 text-gray-400" />
+                </RouterLink>
+
+                <RouterLink 
+                  to="/ai-features/summaries"
+                  class="quick-action-link"
+                >
+                  <DocumentTextIcon class="w-5 h-5 text-blue-600" />
+                  <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-gray-900">Generate Summary</p>
+                    <p class="text-xs text-gray-500">Create appointment notes</p>
+                  </div>
+                  <ChevronRightIcon class="w-4 h-4 text-gray-400" />
+                </RouterLink>
+
+                <button 
+                  @click="runDiagnostics"
+                  :disabled="isRunningDiagnostics"
+                  class="quick-action-link w-full"
+                >
+                  <CpuChipIcon class="w-5 h-5 text-purple-600" />
+                  <div class="ml-3 flex-1 text-left">
+                    <p class="text-sm font-medium text-gray-900">
+                      {{ isRunningDiagnostics ? 'Running...' : 'AI Diagnostics' }}
+                    </p>
+                    <p class="text-xs text-gray-500">Check system health</p>
+                  </div>
+                  <ChevronRightIcon class="w-4 h-4 text-gray-400" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -121,99 +360,376 @@
 </template>
 
 <script setup lang="ts">
+import { ref,  onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import {
   CpuChipIcon,
+  ArrowPathIcon,
   HeartIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
   ChartBarIcon,
-  ArrowLeftIcon,
+  CalendarIcon,
+  LightBulbIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XMarkIcon,
+  ChevronRightIcon,
 } from '@heroicons/vue/24/outline'
 import AppLayout from '@/components/common/AppLayout.vue'
+import { useNotifications } from '@/stores/notifications'
+import { format, formatDistance } from 'date-fns'
+
+const { success, error } = useNotifications()
+
+// State
+const isLoading = ref(false)
+const isLoadingBriefing = ref(true)
+const isLoadingTasks = ref(true)
+const isLoadingAlerts = ref(true)
+const isRunningDiagnostics = ref(false)
+
+// AI Metrics
+const aiMetrics = ref({
+  triageProcessed: 24,
+  summariesGenerated: 18,
+  activeAlerts: 3,
+  accuracy: 94.2,
+})
+
+// Daily Briefing Data
+const dailyBriefing = ref({
+  overview: "Today's clinic operations are running smoothly with 24 scheduled appointments and strong patient flow. AI systems have processed 18 triage assessments with 94.2% accuracy. Current capacity utilization is at optimal levels.",
+  insights: [
+    "Appointment completion rate is 12% higher than last week",
+    "Average wait time reduced by 8 minutes through AI optimization",
+    "3 patients flagged for priority follow-up care",
+    "Preventive care recommendations generated for 15 patients"
+  ],
+  recommendations: [
+    "Schedule additional cardiology slots for next week due to high demand",
+    "Review patient flow between 2-4 PM to reduce peak wait times",
+    "Follow up on 2 high-priority medication adherence alerts",
+    "Consider expanding telemedicine offerings based on patient feedback"
+  ]
+})
+
+// Priority Tasks
+const priorityTasks = ref([
+  {
+    id: 1,
+    title: "Review High-Priority Triage Results",
+    description: "3 patients flagged for urgent care requiring immediate attention",
+    category: "medical",
+    priority: "urgent",
+    estimatedTime: "15 min",
+    dueDate: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    title: "Process Medication Alerts",
+    description: "2 drug interaction warnings need physician review",
+    category: "safety",
+    priority: "high",
+    estimatedTime: "10 min",
+    dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 3,
+    title: "Update Patient Care Plans",
+    description: "AI recommendations available for 5 patient care plan updates",
+    category: "planning",
+    priority: "medium",
+    estimatedTime: "25 min",
+    dueDate: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 4,
+    title: "Review Analytics Dashboard",
+    description: "Weekly performance metrics ready for review",
+    category: "analytics",
+    priority: "low",
+    estimatedTime: "20 min",
+    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  }
+])
+
+// Recent Alerts
+const recentAlerts = ref([
+  {
+    id: 1,
+    type: "drug_interaction",
+    severity: "critical",
+    title: "Drug Interaction Alert",
+    message: "Patient John Doe - potential interaction between prescribed medications",
+    createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 2,
+    type: "vital_signs",
+    severity: "high",
+    title: "Abnormal Vital Signs",
+    message: "Patient Jane Smith - blood pressure reading requires attention",
+    createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 3,
+    type: "appointment_delay",
+    severity: "medium",
+    title: "Schedule Optimization",
+    message: "Current appointment delays detected - suggest rescheduling",
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  }
+])
+
+// AI Analytics
+const aiAnalytics = ref({
+  totalRequests: 142,
+  usagePercentage: 78,
+  avgResponseTime: 850,
+  accuracyScore: 94,
+})
+
+// Methods
+const refreshDashboard = async () => {
+  isLoading.value = true
+  
+  try {
+    // Simulate API calls
+    await Promise.all([
+      loadDailyBriefing(),
+      loadPriorityTasks(),
+      loadRecentAlerts(),
+      loadAIAnalytics()
+    ])
+    
+    success('Dashboard updated', 'All AI data has been refreshed')
+  } catch (err) {
+    error('Update failed', 'Failed to refresh AI dashboard data')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const loadDailyBriefing = async () => {
+  isLoadingBriefing.value = true
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  isLoadingBriefing.value = false
+}
+
+const loadPriorityTasks = async () => {
+  isLoadingTasks.value = true
+  await new Promise(resolve => setTimeout(resolve, 800))
+  isLoadingTasks.value = false
+}
+
+const loadRecentAlerts = async () => {
+  isLoadingAlerts.value = true
+  await new Promise(resolve => setTimeout(resolve, 600))
+  isLoadingAlerts.value = false
+}
+
+const loadAIAnalytics = async () => {
+  // Simulate loading analytics
+  await new Promise(resolve => setTimeout(resolve, 500))
+}
+
+const markTaskComplete = (taskId: number) => {
+  const taskIndex = priorityTasks.value.findIndex(task => task.id === taskId)
+  if (taskIndex !== -1) {
+    priorityTasks.value.splice(taskIndex, 1)
+    success('Task completed', 'Priority task has been marked as complete')
+  }
+}
+
+const acknowledgeAlert = (alertId: number) => {
+  const alertIndex = recentAlerts.value.findIndex(alert => alert.id === alertId)
+  if (alertIndex !== -1) {
+    recentAlerts.value.splice(alertIndex, 1)
+    aiMetrics.value.activeAlerts--
+    success('Alert acknowledged', 'Alert has been dismissed')
+  }
+}
+
+const runDiagnostics = async () => {
+  isRunningDiagnostics.value = true
+  
+  try {
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    success('Diagnostics complete', 'All AI systems are operating normally')
+  } catch (err) {
+    error('Diagnostics failed', 'Unable to complete system diagnostics')
+  } finally {
+    isRunningDiagnostics.value = false
+  }
+}
+
+// Helper functions
+const getTaskIcon = (category: string) => {
+  const iconMap = {
+    medical: HeartIcon,
+    safety: ExclamationTriangleIcon,
+    planning: ClockIcon,
+    analytics: ChartBarIcon,
+  }
+  return iconMap[category as keyof typeof iconMap] || ClockIcon
+}
+
+const getTaskIconColor = (priority: string) => {
+  const colorMap = {
+    urgent: 'text-red-600',
+    high: 'text-orange-600',
+    medium: 'text-yellow-600',
+    low: 'text-gray-600',
+  }
+  return colorMap[priority as keyof typeof colorMap] || 'text-gray-600'
+}
+
+const getPriorityClass = (priority: string) => {
+  const classMap = {
+    urgent: 'bg-red-100 text-red-800',
+    high: 'bg-orange-100 text-orange-800',
+    medium: 'bg-yellow-100 text-yellow-800',
+    low: 'bg-gray-100 text-gray-800',
+  }
+  return classMap[priority as keyof typeof classMap] || 'bg-gray-100 text-gray-800'
+}
+
+const getAlertClass = (severity: string) => {
+  const classMap = {
+    critical: 'border-red-200 bg-red-50',
+    high: 'border-orange-200 bg-orange-50',
+    medium: 'border-yellow-200 bg-yellow-50',
+    low: 'border-gray-200 bg-gray-50',
+  }
+  return classMap[severity as keyof typeof classMap] || 'border-gray-200 bg-gray-50'
+}
+
+const getAlertIcon = (type: string) => {
+  const iconMap = {
+    drug_interaction: ExclamationTriangleIcon,
+    vital_signs: HeartIcon,
+    appointment_delay: ClockIcon,
+    system_performance: CpuChipIcon,
+  }
+  return iconMap[type as keyof typeof iconMap] || ExclamationTriangleIcon
+}
+
+const getAlertIconColor = (severity: string) => {
+  const colorMap = {
+    critical: 'text-red-600',
+    high: 'text-orange-600',
+    medium: 'text-yellow-600',
+    low: 'text-gray-600',
+  }
+  return colorMap[severity as keyof typeof colorMap] || 'text-gray-600'
+}
+
+const formatDate = (dateString: string) => {
+  return format(new Date(dateString), 'MMM d, h:mm a')
+}
+
+const formatTime = (dateString: string) => {
+  return formatDistance(new Date(dateString), new Date(), { addSuffix: true })
+}
+
+// Lifecycle
+onMounted(async () => {
+  await refreshDashboard()
+})
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .ai-dashboard-container {
   @apply max-w-7xl mx-auto;
 }
 
-.ai-feature-card {
-  @apply transition-all duration-300 hover:shadow-lg hover:scale-105;
-  @apply relative overflow-hidden;
+.card-header {
+  @apply bg-gray-50;
 }
 
-.ai-feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.6s ease;
+.priority-task-item {
+  @apply transition-all duration-200;
 }
 
-.ai-feature-card:hover::before {
-  left: 100%;
+.priority-task-item:hover {
+  @apply shadow-sm border-blue-200;
 }
 
-.ai-icon-container {
-  @apply relative;
-  animation: pulse-glow 3s ease-in-out infinite;
+.alert-item {
+  @apply transition-all duration-200;
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
-    transform: scale(1);
+.briefing-section h5 {
+  @apply text-sm;
+}
+
+.quick-action-link {
+  @apply flex items-center w-full p-3 rounded-lg border border-gray-200 hover:shadow-sm hover:border-blue-200 transition-all duration-200 text-left;
+}
+
+.quick-action-link:hover {
+  @apply bg-blue-50;
+}
+
+/* AI Status Cards Animation */
+.ai-status-grid .medical-card {
+  @apply transition-all duration-300;
+  animation: slideInUp 0.6s ease-out;
+}
+
+.ai-status-grid .medical-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.ai-status-grid .medical-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.ai-status-grid .medical-card:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  50% {
-    box-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
-    transform: scale(1.05);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* AI indicator styling */
-.ai-indicator {
-  @apply inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-700 font-medium;
+/* Progress bar animations */
+.bg-purple-600,
+.bg-green-600,
+.bg-blue-600 {
+  transition: width 0.5s ease-in-out;
 }
 
-/* Mobile responsive */
+/* Responsive design */
+@media (max-width: 1024px) {
+  .ai-dashboard-grid {
+    @apply grid-cols-1;
+  }
+  
+  .ai-status-grid {
+    @apply grid-cols-1 sm:grid-cols-2;
+  }
+}
+
 @media (max-width: 768px) {
-  .grid-cols-4 {
+  .page-header .flex {
+    @apply flex-col space-y-4 items-start;
+  }
+  
+  .ai-status-grid {
     @apply grid-cols-1;
   }
   
-  .grid-cols-2 {
-    @apply grid-cols-1;
+  .priority-task-item .flex {
+    @apply flex-col space-y-3 items-start;
   }
-  
-  .page-header {
-    @apply text-center;
-  }
-}
-
-/* Background animation */
-.medical-card {
-  @apply relative;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
-
-.medical-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.03) 0%, transparent 50%),
-              radial-gradient(circle at 80% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-/* Ensure content appears above background */
-.medical-card > * {
-  position: relative;
-  z-index: 1;
 }
 </style>

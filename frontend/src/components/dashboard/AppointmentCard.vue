@@ -1,6 +1,7 @@
 <template>
   <div
-    class="appointment-card flex items-center p-4 bg-gray-50 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100 hover:shadow-sm"
+    class="appointment-card group flex items-center p-4 bg-gray-50 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100 hover:shadow-sm border-l-4"
+    :class="statusBorderClass"
     @click="$emit('click', appointment)"
   >
     <!-- Time -->
@@ -112,7 +113,13 @@ const patientInitials = computed(() => {
 
 const appointmentTime = computed(() => {
   try {
-    const date = parseISO(props.appointment.scheduledAt)
+    // If Appointment doesn't have scheduledAt, try to get it from AppointmentFormData
+    // You may need to update the Appointment type to include scheduledAt if it's always present
+    const date = parseISO(
+      (props.appointment as any).scheduledAt ||
+      (props.appointment as any).date ||
+      ''
+    )
     return format(date, 'HH:mm')
   } catch {
     return '00:00'
@@ -129,6 +136,7 @@ const statusText = computed(() => {
     scheduled: 'Scheduled',
     completed: 'Completed',
     cancelled: 'Cancelled',
+    confirmed: 'Confirmed',
     'no-show': 'No Show',
   }
   return statusMap[props.appointment.status] || 'Unknown'
@@ -137,6 +145,7 @@ const statusText = computed(() => {
 const statusClasses = computed(() => {
   const classMap: Record<AppointmentStatus, string> = {
     scheduled: 'text-blue-800 bg-blue-100',
+    confirmed: 'text-blue-800 bg-blue-100',
     completed: 'text-green-800 bg-green-100',
     cancelled: 'text-red-800 bg-red-100',
     'no-show': 'text-yellow-800 bg-yellow-100',
@@ -149,9 +158,21 @@ const statusDotClass = computed(() => {
     scheduled: 'bg-blue-400',
     completed: 'bg-green-400',
     cancelled: 'bg-red-400',
+    confirmed: 'bg-blue-400',
     'no-show': 'bg-yellow-400',
   }
   return classMap[props.appointment.status] || 'bg-gray-400'
+})
+
+const statusBorderClass = computed(() => {
+  const classMap: Record<AppointmentStatus, string> = {
+    scheduled: 'border-blue-500',
+    completed: 'border-green-500',
+    cancelled: 'border-red-500',
+    confirmed: 'border-blue-500',
+    'no-show': 'border-yellow-500',
+  }
+  return classMap[props.appointment.status] || 'border-gray-500'
 })
 
 // Methods
@@ -165,10 +186,6 @@ const handleCancel = () => {
 </script>
 
 <style scoped>
-.appointment-card {
-  @apply group;
-}
-
 /* Subtle hover effects */
 .appointment-card:hover {
   transform: translateY(-1px);
@@ -180,53 +197,23 @@ const handleCancel = () => {
 }
 
 .appointment-card:hover .opacity-0 {
-  @apply opacity-100;
+  opacity: 1;
 }
 
 /* Mobile responsive adjustments */
 @media (max-width: 640px) {
   .appointment-card {
-    @apply p-3;
+    padding: 0.75rem;
   }
   
   /* Hide quick actions on mobile to save space */
   .appointment-card .opacity-0 {
-    @apply hidden;
+    display: none;
   }
 }
 
 /* Accessibility improvements */
 .appointment-card:focus-within {
-  @apply ring-2 ring-primary-500 ring-opacity-50;
-}
-
-/* Add subtle left border based on status */
-.appointment-card {
-  @apply border-l-4;
-  border-left-color: transparent;
-}
-
-/* Status-based left borders */
-.appointment-card:has(.bg-blue-100) {
-  border-left-color: #3b82f6;
-}
-
-.appointment-card:has(.bg-green-100) {
-  border-left-color: #10b981;
-}
-
-.appointment-card:has(.bg-red-100) {
-  border-left-color: #ef4444;
-}
-
-.appointment-card:has(.bg-yellow-100) {
-  border-left-color: #f59e0b;
-}
-
-/* Fallback for browsers that don't support :has() */
-@supports not (selector(:has(*))) {
-  .appointment-card {
-    border-left-color: #3b82f6;
-  }
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 </style>

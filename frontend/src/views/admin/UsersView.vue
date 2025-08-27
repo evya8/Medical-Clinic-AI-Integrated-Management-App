@@ -38,7 +38,7 @@ const userFeatures = [
 ]
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .users-container {
   @apply max-w-6xl mx-auto;
 }

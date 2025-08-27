@@ -1,7 +1,7 @@
 <template>
-  <div
-    class="patient-card medical-card p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary-200"
-    @click="$emit('click', patient)"
+  <RouterLink
+    :to="`/patients/${patient.id}`"
+    class="patient-card group relative medical-card p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary-200 block"
   >
     <!-- Patient Header -->
     <div class="flex items-center justify-between mb-4">
@@ -28,7 +28,7 @@
       <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <button
           class="p-2 text-gray-400 hover:text-primary-600 rounded-full hover:bg-primary-50"
-          @click.stop="$emit('edit', patient)"
+          @click.prevent.stop="handleEdit"
           title="Edit patient"
         >
           <PencilIcon class="w-4 h-4" />
@@ -81,22 +81,31 @@
         Active
       </span>
     </div>
-  </div>
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { differenceInYears, format, subDays } from 'date-fns'
+import { useRouter } from 'vue-router'
+import { differenceInYears, format } from 'date-fns'
 import {
   PencilIcon,
   EnvelopeIcon,
   PhoneIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/vue/24/outline'
-import type { Patient } from '@/types/api.types'
+import type { Patient, MedicalHistoryEntry } from '@/types/api.types'
 
 interface Props {
-  patient: Patient
+  patient: PatientWithHistory
+}
+
+type PatientWithHistory = Patient & {
+  medicalHistory?: MedicalHistoryEntry[]
+}
+
+interface Props {
+  patient: PatientWithHistory
 }
 
 interface Emits {
@@ -106,6 +115,9 @@ interface Emits {
 
 const props = defineProps<Props>()
 defineEmits<Emits>()
+
+// Router
+const router = useRouter()
 
 // Computed
 const patientFullName = computed(() => {
@@ -135,28 +147,37 @@ const patientGender = computed(() => {
     male: 'Male',
     female: 'Female',
     other: 'Other',
+    prefer_not_to_say: 'Prefer not to say',
   }
   
   return genderMap[props.patient.gender] || 'Other'
 })
-
 const lastVisitDate = computed(() => {
-  // Mock: Generate a recent date based on patient creation
-  try {
-    const createdDate = new Date(props.patient.createdAt)
-    const mockLastVisit = subDays(new Date(), Math.floor(Math.random() * 30) + 1)
-    return format(mockLastVisit, 'MMM dd, yyyy')
-  } catch {
-    return 'No visits'
+  const history = props.patient.medicalHistory as MedicalHistoryEntry[] | undefined
+  if (history && history.length > 0) {
+    // Sort by date descending
+    const sorted = history.slice().sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime()
+    })
+    const latest = sorted[0]
+    try {
+      return format(new Date(latest.date), 'MMM dd, yyyy')
+    } catch {
+      return 'No visits'
+    }
   }
+  return 'No visits'
 })
+
+// Methods
+const handleEdit = () => {
+  // Navigate to patient detail page and open edit modal
+  router.push(`/patients/${props.patient.id}?edit=true`)
+}
 </script>
 
-<style scoped>
-.patient-card {
-  @apply group relative;
-}
-
+<style lang="postcss" scoped>
+/* Hover transform effect */
 .patient-card:hover {
   transform: translateY(-1px);
 }

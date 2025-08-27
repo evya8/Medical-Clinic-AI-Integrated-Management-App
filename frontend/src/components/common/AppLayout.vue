@@ -78,7 +78,7 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .app-layout {
   @apply min-h-screen bg-gray-50 flex;
 }

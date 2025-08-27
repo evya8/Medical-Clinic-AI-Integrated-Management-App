@@ -1,7 +1,7 @@
 <template>
   <tr
-    class="patient-row hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-    @click="$emit('click', patient)"
+    class="patient-row group hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+    @click="navigateToDetail"
   >
     <!-- Patient Column -->
     <td class="px-6 py-4 whitespace-nowrap">
@@ -88,6 +88,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { differenceInYears, format, subDays } from 'date-fns'
 import {
   EyeIcon,
@@ -109,6 +110,9 @@ interface Emits {
 
 const props = defineProps<Props>()
 defineEmits<Emits>()
+
+// Router
+const router = useRouter()
 
 // Computed
 const patientFullName = computed(() => {
@@ -138,6 +142,7 @@ const patientGender = computed(() => {
     male: 'Male',
     female: 'Female',
     other: 'Other',
+    prefer_not_to_say: 'Prefer not to say',
   }
   
   return genderMap[props.patient.gender] || 'Other'
@@ -163,13 +168,14 @@ const hasAllergies = computed(() => {
          props.patient.allergies.toLowerCase() !== 'none known' && 
          props.patient.allergies.toLowerCase() !== 'none'
 })
+
+// Methods
+const navigateToDetail = () => {
+  router.push(`/patients/${props.patient.id}`)
+}
 </script>
 
-<style scoped>
-.patient-row {
-  @apply group;
-}
-
+<style lang="postcss" scoped>
 /* Hover effects for action buttons */
 .patient-row .p-1 {
   @apply opacity-70 group-hover:opacity-100;

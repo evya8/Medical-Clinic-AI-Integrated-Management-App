@@ -98,7 +98,7 @@ const goBack = () => {
 }
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 /* Add some subtle animations */
 @keyframes fadeInUp {
   from {

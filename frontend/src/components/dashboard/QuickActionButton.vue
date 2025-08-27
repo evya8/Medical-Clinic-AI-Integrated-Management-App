@@ -22,13 +22,14 @@
 import { computed } from 'vue'
 import {
   UserPlusIcon,
-  CalendarPlusIcon,
+  CalendarIcon,
   ClipboardDocumentListIcon,
   ChartBarIcon,
   HeartIcon,
   CogIcon,
   BellIcon,
   DocumentTextIcon,
+  PlusIcon,
 } from '@heroicons/vue/24/outline'
 
 interface Props {
@@ -40,19 +41,21 @@ interface Emits {
   (e: 'click'): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<Emits>()
 
 // Icon mapping
 const iconMap = {
   UserPlusIcon,
-  CalendarPlusIcon,
+  CalendarIcon,
+  CalendarPlusIcon: CalendarIcon, // Alias for backward compatibility
   ClipboardDocumentListIcon,
   ChartBarIcon,
   HeartIcon,
   CogIcon,
   BellIcon,
   DocumentTextIcon,
+  PlusIcon,
 }
 
 // Computed
@@ -61,7 +64,7 @@ const iconComponent = computed(() => {
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .quick-action-button {
   @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   min-height: 4.5rem;

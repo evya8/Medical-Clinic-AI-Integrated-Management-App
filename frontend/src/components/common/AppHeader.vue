@@ -235,8 +235,9 @@ const mockNotifications: Notification[] = [
 const route = useRoute()
 
 const pageTitle = computed(() => {
-  if (route.meta?.title) {
-    return route.meta.title.replace(' - MediCore Clinic', '')
+  const title = route.meta?.title
+  if (typeof title === 'string') {
+    return title.replace(' - MediCore Clinic', '')
   }
   return route.name as string || 'Dashboard'
 })
@@ -332,7 +333,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .app-header {
   /* Ensure header stays above content */
   z-index: 40;

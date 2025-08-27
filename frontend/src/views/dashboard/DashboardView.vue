@@ -175,14 +175,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import {
-  UsersIcon,
   CalendarIcon,
-  BellIcon,
-  CpuChipIcon,
-  UserPlusIcon,
-  CalendarPlusIcon,
-  ClipboardDocumentListIcon,
-  ChartBarIcon,
 } from '@heroicons/vue/24/outline'
 import AppLayout from '@/components/common/AppLayout.vue'
 import MetricCard from '@/components/dashboard/MetricCard.vue'
@@ -385,7 +378,7 @@ const loadDashboardData = async () => {
 }
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .dashboard-container {
   @apply max-w-7xl mx-auto;
 }

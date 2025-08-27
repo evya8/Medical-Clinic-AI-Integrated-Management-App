@@ -2,9 +2,9 @@
   <Teleport to="body">
     <div
       aria-live="assertive"
-      class="notification-container fixed inset-0 z-50 flex items-end justify-center px-4 py-6 pointer-events-none sm:p-6 sm:items-start sm:justify-end"
+      class="notification-container fixed inset-0 z-[100] flex items-start justify-center px-4 py-6 pointer-events-none sm:p-6"
     >
-      <div class="w-full flex flex-col items-center space-y-4 sm:items-end">
+      <div class="w-full flex flex-col items-center space-y-4">
         <!-- Notifications List -->
         <TransitionGroup
           name="notification"
@@ -15,6 +15,8 @@
             v-for="notification in notifications"
             :key="notification.id"
             class="notification-card max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
+            :class="getBorderClass(notification.type)"
+            role="alert"
           >
             <div class="p-4">
               <div class="flex items-start">
@@ -97,7 +99,7 @@ import {
   XMarkIcon,
 } from '@heroicons/vue/24/outline'
 import { useNotifications } from '@/stores/notifications'
-import type { Notification } from '@/types/api.types'
+import type { NotificationData } from '@/types/api.types'
 
 // Store
 const notificationsStore = useNotifications()
@@ -110,7 +112,7 @@ const removeNotification = (id: string) => {
   notificationsStore.removeNotification(id)
 }
 
-const progressBarColor = (type: Notification['type']): string => {
+const progressBarColor = (type: NotificationData['type']): string => {
   const colors = {
     success: 'bg-green-400',
     warning: 'bg-yellow-400',
@@ -119,9 +121,19 @@ const progressBarColor = (type: Notification['type']): string => {
   }
   return colors[type] || colors.info
 }
+
+const getBorderClass = (type: NotificationData['type']): string => {
+  const borderClasses = {
+    success: 'border-green',
+    warning: 'border-yellow',
+    error: 'border-red',
+    info: 'border-blue',
+  }
+  return borderClasses[type] || borderClasses.info
+}
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .notification-container {
   /* Ensure notifications appear above everything else */
   z-index: 100;
@@ -174,12 +186,10 @@ const progressBarColor = (type: Notification['type']): string => {
     @apply mx-4;
   }
 }
-
 /* Improve accessibility */
-.notification-card {
-  /* Ensure notifications are accessible to screen readers */
-  role: alert;
-}
+/* Ensure notifications are accessible to screen readers */
+/* role attribute should be set in the template, not in CSS */
+
 
 /* Custom shadow for better visual hierarchy */
 .notification-card {
@@ -191,27 +201,20 @@ const progressBarColor = (type: Notification['type']): string => {
   border-left: 4px solid transparent;
 }
 
-/* Add colored left border based on type */
-.notification-card:has(.text-green-400) {
+/* Add colored left border based on notification type - handled via template classes */
+.notification-card.border-green {
   border-left-color: #10b981;
 }
 
-.notification-card:has(.text-yellow-400) {
+.notification-card.border-yellow {
   border-left-color: #f59e0b;
 }
 
-.notification-card:has(.text-red-400) {
+.notification-card.border-red {
   border-left-color: #ef4444;
 }
 
-.notification-card:has(.text-blue-400) {
+.notification-card.border-blue {
   border-left-color: #3b82f6;
-}
-
-/* Fallback for browsers that don't support :has() */
-@supports not (selector(:has(*))) {
-  .notification-card {
-    border-left-color: #3b82f6;
-  }
 }
 </style>

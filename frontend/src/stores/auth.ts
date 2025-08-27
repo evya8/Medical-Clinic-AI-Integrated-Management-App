@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
       addNotification({
         type: 'error',
         title: 'Login Failed',
-        message: error.value,
+        message: error.value || undefined,
       })
       return false
     } finally {

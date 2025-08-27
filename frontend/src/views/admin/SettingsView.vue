@@ -38,7 +38,7 @@ const settingsFeatures = [
 ]
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .settings-container {
   @apply max-w-6xl mx-auto;
 }
