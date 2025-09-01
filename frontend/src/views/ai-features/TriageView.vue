@@ -413,7 +413,7 @@ import AppLayout from '@/components/common/AppLayout.vue'
 import { useNotifications } from '@/stores/notifications'
 import { formatDistance } from 'date-fns'
 import type { TriagePatient, TriageFormData, Patient } from '@/types/api.types'
-import { api, handleApiError } from '@/services/api'
+import { api, handleApiError, API_ENDPOINTS } from '@/services/api'
 
 const { success, error } = useNotifications()
 
@@ -464,8 +464,8 @@ const refreshTriageQueue = async () => {
   isRefreshing.value = true
   
   try {
-    const response = await api.get<TriagePatient[]>('/api/ai-triage/queue')
-    if (response.success) {
+    const response = await api.get<TriagePatient[]>('/ai-triage/queue')
+    if (response.success && response.data) {
       triageQueue.value = response.data
       updateTriageStats()
       success('Queue updated', 'Triage queue has been refreshed')
@@ -489,7 +489,7 @@ const performTriage = async () => {
   
   try {
     // Call AI triage API
-    const response = await api.post<TriagePatient>('/api/ai-triage/analyze', {
+    const response = await api.post<TriagePatient>('/ai-triage/analyze', {
       patient_id: triageForm.value.patientId,
       chief_complaint: triageForm.value.chiefComplaint,
       symptoms: triageForm.value.symptoms,
@@ -498,7 +498,7 @@ const performTriage = async () => {
       pain_level: triageForm.value.painLevel
     })
     
-    if (response.success) {
+    if (response.success && response.data) {
       // Add new triage result to queue
       triageQueue.value.unshift(response.data)
       updateTriageStats()
@@ -519,7 +519,7 @@ const performTriage = async () => {
 
 const assignToDoctor = async (patient: TriagePatient) => {
   try {
-    const response = await api.post<{success: boolean; message?: string}>('/api/ai-triage/assign', {
+    const response = await api.post<{success: boolean; message?: string}>('/ai-triage/assign', {
       triage_id: patient.id,
       doctor_id: null // Let system assign based on specialty
     })
@@ -549,7 +549,7 @@ const viewPatientDetail = (patient: TriagePatient) => {
 
 const retriage = async (patient: TriagePatient) => {
   try {
-    const response = await api.post<TriagePatient>('/api/ai-triage/re-assess', {
+    const response = await api.post<TriagePatient>('/ai-triage/re-assess', {
       triage_id: patient.id
     })
     
@@ -586,8 +586,8 @@ const loadTriageQueue = async () => {
   isLoadingQueue.value = true
   
   try {
-    const response = await api.get<TriagePatient[]>('/api/ai-triage/queue')
-    if (response.success) {
+    const response = await api.get<TriagePatient[]>('/ai-triage/queue')
+    if (response.success && response.data) {
       triageQueue.value = response.data
       updateTriageStats()
     } else {
@@ -603,7 +603,7 @@ const loadTriageQueue = async () => {
 
 const loadAvailablePatients = async () => {
   try {
-    const response = await api.get<Patient[]>('/api/patients')
+    const response = await api.get<Patient[]>(API_ENDPOINTS.PATIENTS.LIST)
     if (response.success && response.data) {
       // Transform to required format for triage
       availablePatients.value = response.data.map(patient => ({

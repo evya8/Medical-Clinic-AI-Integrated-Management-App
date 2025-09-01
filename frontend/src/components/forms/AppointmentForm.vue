@@ -217,6 +217,45 @@
           ></textarea>
         </div>
 
+        <!-- Medical Information (for completed/in-progress appointments) -->
+        <div v-if="isEditMode || showMedicalFields" class="medical-fields-section">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="text-sm font-semibold text-gray-800">Medical Information</h5>
+            <button
+              v-if="!isEditMode && !showMedicalFields"
+              type="button"
+              @click="showMedicalFields = true"
+              class="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Add medical details
+            </button>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="form-label">Diagnosis</label>
+              <textarea
+                v-model="formData.diagnosis"
+                rows="3"
+                class="form-textarea"
+                placeholder="Primary and secondary diagnosis (if applicable)"
+              ></textarea>
+              <p class="text-xs text-gray-500 mt-1">Record the medical diagnosis after examination</p>
+            </div>
+
+            <div>
+              <label class="form-label">Treatment Notes</label>
+              <textarea
+                v-model="formData.treatmentNotes"
+                rows="4"
+                class="form-textarea"
+                placeholder="Treatment plan, medications prescribed, procedures performed, etc."
+              ></textarea>
+              <p class="text-xs text-gray-500 mt-1">Document treatment provided and care plan</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Follow-up Options -->
         <div class="flex items-center space-x-4">
           <div class="flex items-center">
@@ -302,6 +341,8 @@ interface AppointmentFormData {
   duration: string
   notes: string
   specialInstructions: string
+  diagnosis: string
+  treatmentNotes: string
   followUpRequired: boolean
   followUpDate: string
 }
@@ -338,6 +379,7 @@ const isSubmitting = ref(false)
 const showPatientSuggestions = ref(false)
 const patientSearchQuery = ref('')
 const selectedPatient = ref<Patient | null>(null)
+const showMedicalFields = ref(false)
 
 const formData = ref<AppointmentFormData>({
   patientId: '',
@@ -349,6 +391,8 @@ const formData = ref<AppointmentFormData>({
   duration: '30',
   notes: '',
   specialInstructions: '',
+  diagnosis: '',
+  treatmentNotes: '',
   followUpRequired: false,
   followUpDate: '',
 })
@@ -547,11 +591,14 @@ const resetForm = () => {
     duration: '30',
     notes: '',
     specialInstructions: '',
+    diagnosis: '',
+    treatmentNotes: '',
     followUpRequired: false,
     followUpDate: '',
   }
   selectedPatient.value = null
   patientSearchQuery.value = ''
+  showMedicalFields.value = false
   errors.value = {}
   availableTimeSlots.value = []
 }
@@ -590,6 +637,8 @@ watch(() => props.initialData, (newData) => {
       duration: '30', // Calculate from start/end time if available
       notes: newData.notes || '',
       specialInstructions: '', // Add to Appointment type if needed
+      diagnosis: newData.diagnosis || '',
+      treatmentNotes: newData.treatmentNotes || '',
       followUpRequired: newData.followUpRequired || false,
       followUpDate: newData.followUpDate || '',
     }
@@ -654,6 +703,14 @@ document.addEventListener('click', handleClickOutside)
 
 .patient-info-card {
   animation: slideIn 0.3s ease-out;
+}
+
+.medical-fields-section {
+  @apply bg-blue-50 border-l-4 border-blue-400 pl-4 py-4 rounded-md;
+}
+
+.medical-fields-section h5 {
+  @apply text-blue-900;
 }
 
 @keyframes slideIn {

@@ -1,0 +1,312 @@
+<?php
+
+namespace MedicalClinic\Models;
+
+class HIPAAAuditLog extends BaseModel
+{
+    protected static string $table = 'hipaa_audit_log';
+
+    // Relationships
+    public function user(): ?User
+    {
+        return $this->user_id ? $this->belongsTo(User::class, 'user_id') : null;
+    }
+
+    public function patient(): ?Patient
+    {
+        return $this->patient_id ? $this->belongsTo(Patient::class, 'patient_id') : null;
+    }
+
+    public function appointment(): ?Appointment
+    {
+        return $this->appointment_id ? $this->belongsTo(Appointment::class, 'appointment_id') : null;
+    }
+
+    // Static logging methods
+    public static function logAction(
+        string $action,
+        string $resourceType,
+        int $resourceId,
+        int $userId = null,
+        array $details = [],
+        int $patientId = null,
+        int $appointmentId = null
+    ): static {
+        $logEntry = new static([
+            'event_type' => $action,
+            'event_details' => json_encode(array_merge($details, [
+                'resource_type' => $resourceType,
+                'resource_id' => $resourceId,
+                'timestamp' => date('Y-m-d H:i:s')
+            ])),
+            'user_id' => $userId,
+            'patient_id' => $patientId,
+            'appointment_id' => $appointmentId,
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
+        ]);
+        
+        $logEntry->save();
+        return $logEntry;
+    }
+
+    public static function logPatientAccess(int $patientId, int $userId, string $action = 'view'): static
+    {
+        return static::logAction(
+            "patient_{$action}",
+            'patient',
+            $patientId,
+            $userId,
+            ['action' => $action],
+            $patientId
+        );
+    }
+
+    public static function logAppointmentAccess(int $appointmentId, int $userId, string $action = 'view'): static
+    {
+        $appointment = Appointment::find($appointmentId);
+        return static::logAction(
+            "appointment_{$action}",
+            'appointment',
+            $appointmentId,
+            $userId,
+            ['action' => $action],
+            $appointment?->patient_id,
+            $appointmentId
+        );
+    }
+
+    public static function logUserAction(int $targetUserId, int $performedByUserId, string $action): static
+    {
+        return static::logAction(
+            "user_{$action}",
+            'user',
+            $targetUserId,
+            $performedByUserId,
+            ['action' => $action, 'target_user_id' => $targetUserId]
+        );
+    }
+
+    public static function logLogin(int $userId, bool $successful = true): static
+    {
+        return static::logAction(
+            $successful ? 'login_success' : 'login_failed',
+            'authentication',
+            $userId,
+            $successful ? $userId : null,
+            ['successful' => $successful]
+        );
+    }
+
+    public static function logDataExport(string $dataType, int $userId, array $exportDetails = []): static
+    {
+        return static::logAction(
+            'data_export',
+            $dataType,
+            0, // No specific resource ID for exports
+            $userId,
+            array_merge($exportDetails, ['export_type' => $dataType])
+        );
+    }
+
+    // Query and filtering methods
+    public static function getLogsByUser(int $userId, int $limit = 100): array
+    {
+        static::initializeDatabase();
+        $results = static::$db->fetchAll(
+            "SELECT * FROM hipaa_audit_log 
+             WHERE user_id = :user_id 
+             ORDER BY created_at DESC 
+             LIMIT :limit",
+            ['user_id' => $userId, 'limit' => $limit]
+        );
+        return array_map(fn($row) => new static($row, true), $results);
+    }
+
+    public static function getLogsByPatient(int $patientId, int $limit = 100): array
+    {
+        static::initializeDatabase();
+        $results = static::$db->fetchAll(
+            "SELECT * FROM hipaa_audit_log 
+             WHERE patient_id = :patient_id 
+             ORDER BY created_at DESC 
+             LIMIT :limit",
+            ['patient_id' => $patientId, 'limit' => $limit]
+        );
+        return array_map(fn($row) => new static($row, true), $results);
+    }
+
+    public static function getLogsByDateRange(string $startDate, string $endDate): array
+    {
+        static::initializeDatabase();
+        $results = static::$db->fetchAll(
+            "SELECT * FROM hipaa_audit_log 
+             WHERE DATE(created_at) BETWEEN :start_date AND :end_date 
+             ORDER BY created_at DESC",
+            ['start_date' => $startDate, 'end_date' => $endDate]
+        );
+        return array_map(fn($row) => new static($row, true), $results);
+    }
+
+    public static function getLogsByAction(string $eventType): array
+    {
+        return static::where('event_type', $eventType);
+    }
+
+    public static function getRecentLogs(int $limit = 50): array
+    {
+        static::initializeDatabase();
+        $results = static::$db->fetchAll(
+            "SELECT l.*, 
+                    u.first_name as user_first_name, u.last_name as user_last_name,
+                    p.first_name as patient_first_name, p.last_name as patient_last_name
+             FROM hipaa_audit_log l
+             LEFT JOIN users u ON l.user_id = u.id
+             LEFT JOIN patients p ON l.patient_id = p.id
+             ORDER BY l.created_at DESC 
+             LIMIT :limit",
+            ['limit' => $limit]
+        );
+        return array_map(fn($row) => new static($row, true), $results);
+    }
+
+    // Data parsing methods
+    public function getEventDetails(): array
+    {
+        $details = json_decode($this->event_details, true);
+        return is_array($details) ? $details : [];
+    }
+
+    public function getEventType(): string
+    {
+        return $this->event_type;
+    }
+
+    public function getResourceInfo(): array
+    {
+        $details = $this->getEventDetails();
+        return [
+            'resource_type' => $details['resource_type'] ?? 'unknown',
+            'resource_id' => $details['resource_id'] ?? null,
+            'action' => $details['action'] ?? $this->event_type
+        ];
+    }
+
+    // Display methods
+    public function getDisplayInfo(): array
+    {
+        $user = $this->user();
+        $patient = $this->patient();
+        $details = $this->getEventDetails();
+        
+        return [
+            'id' => $this->id,
+            'event_type' => $this->event_type,
+            'event_details' => $details,
+            'user_name' => $user?->getFullName() ?? 'System',
+            'patient_name' => $patient?->getFullName(),
+            'ip_address' => $this->ip_address,
+            'user_agent' => $this->user_agent,
+            'created_at' => $this->created_at,
+            'formatted_time' => date('M j, Y g:i A', strtotime($this->created_at))
+        ];
+    }
+
+    public function getFormattedEventType(): string
+    {
+        return ucwords(str_replace('_', ' ', $this->event_type));
+    }
+
+    // Security and compliance methods
+    public function isHighRiskAction(): bool
+    {
+        $highRiskActions = [
+            'patient_delete',
+            'data_export',
+            'user_create',
+            'user_delete',
+            'appointment_delete',
+            'login_failed'
+        ];
+        
+        return in_array($this->event_type, $highRiskActions);
+    }
+
+    public function isPatientDataAccess(): bool
+    {
+        return strpos($this->event_type, 'patient_') === 0 ||
+               $this->patient_id !== null;
+    }
+
+    public function isAdminAction(): bool
+    {
+        $adminActions = [
+            'user_create',
+            'user_update', 
+            'user_delete',
+            'user_activate',
+            'system_config',
+            'data_export'
+        ];
+        
+        return in_array($this->event_type, $adminActions);
+    }
+
+    // Statistics and reporting
+    public static function getComplianceStats(): array
+    {
+        $stats = static::$db->fetch(
+            "SELECT 
+                COUNT(*) as total_actions,
+                COUNT(DISTINCT user_id) as unique_users,
+                COUNT(DISTINCT patient_id) as patients_accessed,
+                SUM(CASE WHEN event_type LIKE '%patient_%' THEN 1 ELSE 0 END) as patient_actions,
+                SUM(CASE WHEN event_type LIKE '%data_export%' THEN 1 ELSE 0 END) as data_exports,
+                SUM(CASE WHEN event_type LIKE '%login%' THEN 1 ELSE 0 END) as login_attempts
+             FROM hipaa_audit_log 
+             WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)",
+            []
+        );
+
+        return [
+            'total_actions' => (int) $stats['total_actions'],
+            'unique_users' => (int) $stats['unique_users'],
+            'patients_accessed' => (int) $stats['patients_accessed'],
+            'patient_data_actions' => (int) $stats['patient_actions'],
+            'data_exports' => (int) $stats['data_exports'],
+            'login_attempts' => (int) $stats['login_attempts']
+        ];
+    }
+
+    public static function getUserActivitySummary(int $userId, int $days = 30): array
+    {
+        static::initializeDatabase();
+        $results = static::$db->fetchAll(
+            "SELECT 
+                event_type,
+                COUNT(*) as count,
+                MIN(created_at) as first_occurrence,
+                MAX(created_at) as last_occurrence
+             FROM hipaa_audit_log 
+             WHERE user_id = :user_id 
+             AND created_at >= DATE_SUB(NOW(), INTERVAL :days DAY)
+             GROUP BY event_type
+             ORDER BY count DESC",
+            ['user_id' => $userId, 'days' => $days]
+        );
+
+        return $results;
+    }
+
+    // Cleanup methods
+    public static function cleanupOldLogs(int $daysOld = 2555): int // 7 years default for HIPAA
+    {
+        $result = static::initializeDatabase(); static::$db->query(
+            "DELETE FROM hipaa_audit_log 
+             WHERE created_at < DATE_SUB(NOW(), INTERVAL :days DAY)",
+            ['days' => $daysOld]
+        );
+        
+        return static::$db->affectedRows();
+    }
+}

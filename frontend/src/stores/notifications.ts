@@ -11,7 +11,7 @@ export const useNotifications = defineStore('notifications', () => {
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 9)
     const newNotification: Notification = {
       id,
-      duration: 5000, // Default 5 seconds
+      duration: 7000, // Default 7 seconds
       persistent: false,
       ...notification,
     }
@@ -49,7 +49,7 @@ export const useNotifications = defineStore('notifications', () => {
       type: 'error', 
       title, 
       message,
-      duration: 8000, // Error messages stay longer
+      duration: 9000, // Error messages stay longer
     })
   }
 

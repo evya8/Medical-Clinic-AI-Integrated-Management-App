@@ -1,5 +1,5 @@
 import { api, API_ENDPOINTS, handleApiError } from './api'
-import type { User, LoginCredentials, LoginResponse } from '@/types/api.types'
+import type { User, LoginCredentials, LoginResponse, RefreshTokenResponse } from '@/types/api.types'
 
 export class AuthService {
   // Login user
@@ -8,9 +8,14 @@ export class AuthService {
       const response = await api.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials)
       
       if (response.success && response.data) {
-        // Store token and user data
+        // Store access token and user data
         localStorage.setItem('auth_token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
+        
+        // Store refresh token if provided
+        if (response.data.refreshToken) {
+          localStorage.setItem('refresh_token', response.data.refreshToken)
+        }
         
         return response.data
       } else {
@@ -29,8 +34,9 @@ export class AuthService {
       // Continue with logout even if API call fails
       console.warn('Logout API call failed:', handleApiError(error))
     } finally {
-      // Always clear local storage
+      // Always clear local storage including refresh token
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('refresh_token')
       localStorage.removeItem('user')
     }
   }
@@ -53,18 +59,32 @@ export class AuthService {
   }
 
   // Refresh authentication token
-  async refreshToken(): Promise<string> {
+  async refreshToken(): Promise<RefreshTokenResponse> {
     try {
-      const response = await api.post<{ token: string }>(API_ENDPOINTS.AUTH.REFRESH)
+      const storedRefreshToken = localStorage.getItem('refresh_token')
+      if (!storedRefreshToken) {
+        throw new Error('No refresh token available')
+      }
+
+      const response = await api.post<RefreshTokenResponse>(API_ENDPOINTS.AUTH.REFRESH, {
+        refreshToken: storedRefreshToken
+      })
       
       if (response.success && response.data) {
+        // Store new access token
         localStorage.setItem('auth_token', response.data.token)
-        return response.data.token
+        
+        // Store new refresh token if provided
+        if (response.data.refreshToken) {
+          localStorage.setItem('refresh_token', response.data.refreshToken)
+        }
+        
+        return response.data
       } else {
         throw new Error(response.message || 'Token refresh failed')
       }
     } catch (error: any) {
-      // If refresh fails, user needs to login again
+      // If refresh fails, clear auth data
       this.clearAuthData()
       throw new Error(handleApiError(error))
     }
@@ -100,6 +120,7 @@ export class AuthService {
   // Clear authentication data
   clearAuthData(): void {
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('refresh_token')
     localStorage.removeItem('user')
   }
 

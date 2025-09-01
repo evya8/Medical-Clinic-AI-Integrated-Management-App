@@ -154,15 +154,6 @@
         </div>
       </div>
 
-      <!-- Bulk Operations Component -->
-      <BulkOperations
-        entity-type="patient"
-        :selected-items="selectedPatients"
-        @clear-selection="clearSelection"
-        @items-processed="handleBulkProcessed"
-        class="mb-6"
-      />
-
       <!-- Patient Statistics -->
       <div class="patient-stats grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="medical-card p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
@@ -465,7 +456,6 @@ import AppLayout from '@/components/common/AppLayout.vue'
 import PatientCard from '@/components/patients/PatientCard.vue'
 import PatientRow from '@/components/patients/PatientRow.vue'
 import PatientEditModal from '@/components/patients/modals/PatientEditModal.vue'
-import BulkOperations from '@/components/bulk-operations/BulkOperations.vue'
 import AdvancedSearch from '@/components/search/AdvancedSearch.vue'
 import { useNotifications } from '@/stores/notifications'
 import type { Patient } from '@/types/api.types'

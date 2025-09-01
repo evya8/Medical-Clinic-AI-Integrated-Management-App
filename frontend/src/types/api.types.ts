@@ -14,11 +14,14 @@ export interface User {
   role: UserRole
   firstName?: string
   lastName?: string
+  phone?: string
+  isActive?: boolean
   createdAt: string
   updatedAt: string
 }
 
-export type UserRole = 'admin' | 'doctor' | 'staff' | 'receptionist'
+// Simplified role system for admin/doctor only
+export type UserRole = 'admin' | 'doctor'
 
 export interface LoginCredentials {
   email: string
@@ -28,6 +31,13 @@ export interface LoginCredentials {
 export interface LoginResponse {
   user: User
   token: string
+  refreshToken?: string
+  expiresIn: number
+}
+
+export interface RefreshTokenResponse {
+  token: string
+  refreshToken?: string
   expiresIn: number
 }
 

@@ -8,7 +8,11 @@ return [
     
     'jwt' => [
         'secret' => $_ENV['JWT_SECRET'] ?? 'your_secret_key_here',
-        'expiry' => (int) ($_ENV['JWT_EXPIRY'] ?? 86400), // 24 hours
+        'access_secret' => $_ENV['JWT_ACCESS_SECRET'] ?? $_ENV['JWT_SECRET'] ?? 'your_access_secret_key_here',
+        'refresh_secret' => $_ENV['JWT_REFRESH_SECRET'] ?? $_ENV['JWT_SECRET'] ?? 'your_refresh_secret_key_here',
+        'expiry' => (int) ($_ENV['JWT_EXPIRY'] ?? 86400), // 24 hours (legacy)
+        'access_expiry' => (int) ($_ENV['JWT_ACCESS_EXPIRY'] ?? 900), // 15 minutes
+        'refresh_expiry' => (int) ($_ENV['JWT_REFRESH_EXPIRY'] ?? 604800), // 7 days
         'algorithm' => 'HS256'
     ],
     

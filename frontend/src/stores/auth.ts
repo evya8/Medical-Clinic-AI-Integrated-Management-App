@@ -9,16 +9,21 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const refreshToken = ref<string | null>(null)
+  const tokenRefreshTimer = ref<NodeJS.Timeout | null>(null)
 
   // Get notifications store
   const { addNotification } = useNotifications()
 
   // Getters
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => !!user.value && !!localStorage.getItem('auth_token'))
   const userRole = computed(() => user.value?.role || null)
   const userName = computed(() => authService.getUserDisplayName(user.value || undefined))
   const canAccessAdminPanel = computed(() => userRole.value === 'admin')
   const canAccessAI = computed(() => ['admin', 'doctor'].includes(userRole.value || ''))
+  const canManageUsers = computed(() => userRole.value === 'admin')
+  const isDoctor = computed(() => userRole.value === 'doctor')
+  const isAdmin = computed(() => userRole.value === 'admin')
 
   // Actions
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
@@ -28,6 +33,15 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const loginResponse = await authService.login(credentials)
       user.value = loginResponse.user
+      
+      // Store refresh token if provided
+      if (loginResponse.refreshToken) {
+        refreshToken.value = loginResponse.refreshToken
+        localStorage.setItem('refresh_token', loginResponse.refreshToken)
+      }
+      
+      // Set up automatic token refresh
+      setupTokenRefresh()
       
       addNotification({
         type: 'success',
@@ -54,20 +68,32 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       await authService.logout()
+    } catch (err: any) {
+      console.error('Logout error:', err)
+      // Continue with logout even if API call fails
+    } finally {
+      // Clear all auth state
       user.value = null
       error.value = null
+      refreshToken.value = null
+      
+      // Clear stored tokens
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('user')
+      
+      // Clear refresh timer
+      if (tokenRefreshTimer.value) {
+        clearTimeout(tokenRefreshTimer.value)
+        tokenRefreshTimer.value = null
+      }
       
       addNotification({
         type: 'info',
         title: 'Logged Out',
         message: 'You have been successfully logged out.',
       })
-    } catch (err: any) {
-      console.error('Logout error:', err)
-      // Even if API call fails, clear local state
-      user.value = null
-      error.value = null
-    } finally {
+      
       isLoading.value = false
     }
   }
@@ -125,15 +151,90 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Reactive permissions
+  // Token refresh functionality
+  const refreshTokens = async (): Promise<boolean> => {
+    try {
+      const storedRefreshToken = refreshToken.value || localStorage.getItem('refresh_token')
+      if (!storedRefreshToken) {
+        throw new Error('No refresh token available')
+      }
+
+      const response = await authService.refreshToken()
+      
+      // Update tokens
+      if (response.refreshToken) {
+        refreshToken.value = response.refreshToken
+        localStorage.setItem('refresh_token', response.refreshToken)
+      }
+      
+      // Set up next refresh
+      setupTokenRefresh()
+      
+      return true
+    } catch (error: any) {
+      console.error('Token refresh failed:', error)
+      // If refresh fails, logout user
+      await logout()
+      return false
+    }
+  }
+
+  // Set up automatic token refresh (13 minutes for 15-minute tokens)
+  const setupTokenRefresh = (): void => {
+    if (tokenRefreshTimer.value) {
+      clearTimeout(tokenRefreshTimer.value)
+    }
+    
+    // Refresh token every 13 minutes (780000ms) for 15-minute access tokens
+    tokenRefreshTimer.value = setTimeout(() => {
+      if (isAuthenticated.value) {
+        refreshTokens()
+      }
+    }, 780000)
+  }
+
+  // Initialize auth with refresh token support
+  const initializeAuthWithRefresh = async (): Promise<void> => {
+    isLoading.value = true
+
+    try {
+      const storedUser = await authService.initializeAuth()
+      if (storedUser) {
+        user.value = storedUser
+        refreshToken.value = localStorage.getItem('refresh_token')
+        
+        // Check if we need to refresh token on startup
+        if (authService.isTokenExpired()) {
+          const refreshSuccess = await refreshTokens()
+          if (!refreshSuccess) {
+            return // logout was called in refreshTokens
+          }
+        } else {
+          // Set up refresh timer for valid token
+          setupTokenRefresh()
+        }
+      }
+    } catch (err: any) {
+      console.error('Auth initialization failed:', err)
+      user.value = null
+      refreshToken.value = null
+      authService.clearAuthData()
+      localStorage.removeItem('refresh_token')
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Reactive permissions (simplified for admin/doctor roles only)
   const permissions = computed(() => ({
     canManageUsers: hasRole('admin'),
-    canManagePatients: hasAnyRole(['admin', 'doctor', 'staff']),
-    canManageAppointments: hasAnyRole(['admin', 'doctor', 'staff', 'receptionist']),
+    canManagePatients: hasAnyRole(['admin', 'doctor']),
+    canManageAppointments: hasAnyRole(['admin', 'doctor']),
     canAccessAI: hasAnyRole(['admin', 'doctor']),
     canViewReports: hasAnyRole(['admin', 'doctor']),
-    canManageInventory: hasAnyRole(['admin', 'staff']),
-    canManageBilling: hasAnyRole(['admin', 'staff']),
+    canAccessAdminPanel: hasRole('admin'),
+    canCreateUsers: hasRole('admin'),
+    canManageDoctors: hasRole('admin'),
   }))
 
   return {
@@ -141,6 +242,7 @@ export const useAuthStore = defineStore('auth', () => {
     user: readonly(user),
     isLoading: readonly(isLoading),
     error: readonly(error),
+    refreshToken: readonly(refreshToken),
 
     // Getters
     isAuthenticated,
@@ -148,6 +250,9 @@ export const useAuthStore = defineStore('auth', () => {
     userName,
     canAccessAdminPanel,
     canAccessAI,
+    canManageUsers,
+    isDoctor,
+    isAdmin,
     permissions,
 
     // Actions
@@ -155,6 +260,9 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     refreshUser,
     initializeAuth,
+    initializeAuthWithRefresh,
+    refreshTokens,
+    setupTokenRefresh,
     clearError,
     hasRole,
     hasAnyRole,

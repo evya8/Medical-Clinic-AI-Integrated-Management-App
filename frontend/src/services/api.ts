@@ -107,7 +107,7 @@ export { apiClient }
 
 // API endpoint constants
 export const API_ENDPOINTS = {
-  // Authentication
+  // Authentication (3 endpoints)
   AUTH: {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
@@ -115,16 +115,17 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
   },
   
-  // Users
+  // User Management (6 endpoints)
   USERS: {
     LIST: '/users',
     CREATE: '/users',
     GET: (id: number) => `/users/${id}`,
     UPDATE: (id: number) => `/users/${id}`,
     DELETE: (id: number) => `/users/${id}`,
+    ACTIVATE: (id: number) => `/users/activate/${id}`,
   },
 
-  // Patients
+  // Patients (5 endpoints)
   PATIENTS: {
     LIST: '/patients',
     CREATE: '/patients',
@@ -134,19 +135,20 @@ export const API_ENDPOINTS = {
     SEARCH: '/patients/search',
   },
 
-  // Appointments
+  // Appointments (6 endpoints)
   APPOINTMENTS: {
     LIST: '/appointments',
     CREATE: '/appointments',
     GET: (id: number) => `/appointments/${id}`,
     UPDATE: (id: number) => `/appointments/${id}`,
     DELETE: (id: number) => `/appointments/${id}`,
+    AVAILABLE_SLOTS: '/appointments/available-slots',
     BY_DATE: '/appointments/by-date',
     BY_PATIENT: (patientId: number) => `/appointments/patient/${patientId}`,
     BY_DOCTOR: (doctorId: number) => `/appointments/doctor/${doctorId}`,
   },
 
-  // Doctors
+  // Doctors (4 endpoints)
   DOCTORS: {
     LIST: '/doctors',
     CREATE: '/doctors',
@@ -156,21 +158,71 @@ export const API_ENDPOINTS = {
     AVAILABILITY: (id: number) => `/doctors/${id}/availability`,
   },
 
-  // AI Features
+  // AI Features (33 endpoints total)
   AI: {
-    TRIAGE: '/ai/triage',
-    SUMMARY: '/ai/appointment-summary',
-    ALERTS: '/ai/alerts',
-    DASHBOARD: '/ai/dashboard',
-    BULK_ALERTS: '/ai/alerts/bulk',
+    // AI Dashboard (8 endpoints)
+    DASHBOARD: {
+      BRIEFING: '/ai-dashboard/briefing',
+      STATUS: '/ai-dashboard/status', 
+      TASKS: '/ai-dashboard/tasks',
+      METRICS: '/ai-dashboard/metrics',
+      SUMMARY: '/ai-dashboard/summary',
+      TEST_AI: '/ai-dashboard/test-ai',
+      ANALYZE: '/ai-dashboard/analyze',
+      REFRESH: '/ai-dashboard/refresh',
+    },
+
+    // AI Triage (7 endpoints)
+    TRIAGE: {
+      STATS: '/ai-triage/stats',
+      ANALYZE: '/ai-triage/analyze',
+      BATCH_ANALYZE: '/ai-triage/batch-analyze',
+      SYMPTOM_TRIAGE: '/ai-triage/symptom-triage',
+      REFERRAL_RECOMMENDATIONS: '/ai-triage/referral-recommendations',
+      QUICK_ASSESSMENT: '/ai-triage/quick-assessment',
+      UPDATE_PRIORITY: '/ai-triage/update-priority',
+    },
+
+    // AI Summaries (8 endpoints)
+    SUMMARIES: {
+      STATS: '/ai-summaries/stats',
+      GET: (id: number) => `/ai-summaries/${id}`,
+      GENERATE: '/ai-summaries/generate',
+      SOAP: '/ai-summaries/soap',
+      BILLING: '/ai-summaries/billing',
+      PATIENT: '/ai-summaries/patient',
+      BATCH: '/ai-summaries/batch',
+      UPDATE: '/ai-summaries/update',
+    },
+
+    // AI Alerts (10 endpoints)
+    ALERTS: {
+      DASHBOARD: '/ai-alerts/dashboard',
+      ACTIVE: '/ai-alerts/active',
+      PATIENT: '/ai-alerts/patient',
+      ANALYTICS: '/ai-alerts/analytics',
+      GENERATE: '/ai-alerts/generate',
+      SAFETY: '/ai-alerts/safety',
+      OPERATIONAL: '/ai-alerts/operational',
+      QUALITY: '/ai-alerts/quality',
+      ACKNOWLEDGE: '/ai-alerts/acknowledge',
+      UPDATE: '/ai-alerts/update',
+    },
   },
 
-  // Dashboard
+  // Dashboard (3 endpoints)
   DASHBOARD: {
     METRICS: '/dashboard/metrics',
     STATS: '/dashboard/stats',
     RECENT_ACTIVITY: '/dashboard/recent-activity',
   },
+
+  // Background Services (2 endpoints)
+  REMINDERS: {
+    PROCESS: '/reminders/process',
+  },
+  
+  HEALTH: '/health',
 } as const
 
 // Error handler utility

@@ -23,7 +23,9 @@
       <!-- Page Content -->
       <main class="content-area flex-1 p-6">
         <Transition name="page" mode="out-in">
-          <slot />
+          <div>
+            <slot />
+          </div>
         </Transition>
       </main>
     </div>

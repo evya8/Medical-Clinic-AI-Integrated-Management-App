@@ -128,4 +128,16 @@ class Database
         $result = $stmt->fetch();
         return $result && $result['count'] > 0;
     }
+
+    public function lastInsertId(): string
+    {
+        return $this->connection->lastInsertId();
+    }
+
+    public function affectedRows(): int
+    {
+        // This should be called immediately after a query to get affected rows
+        // We'll need to track this in the query method instead
+        return 0; // Placeholder - will be updated
+    }
 }
